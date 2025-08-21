@@ -1,0 +1,67 @@
+using bienesraices.Models;
+using bienesraices.Repositorios;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+namespace bienesraices.Controllers;
+
+public class InquilinoController : Controller
+{
+    private readonly ILogger<InquilinoController> _logger;
+    private RepositorioInquilino repoInquilino;
+    public InquilinoController(ILogger<InquilinoController> logger)
+    {
+        _logger = logger;
+        repoInquilino = new RepositorioInquilino();
+    }
+    public IActionResult Index()
+    {
+        var lista = repoInquilino.ObtenerInquilinos();
+        return View(lista);
+    }
+
+    // crear inquilino
+    [HttpGet]
+    public IActionResult Crear()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Crear(Inquilino inquilino)
+    {
+        if (ModelState.IsValid)
+        {
+            repoInquilino.CrearInquilino(inquilino);
+            TempData["MensajeExito"] = "Inquilino creado con éxito ✅";
+            return RedirectToAction(nameof(Index));
+        }
+        return View(inquilino);
+    }
+    //editar inquilino
+    [HttpGet]
+    public IActionResult Editar(int id)
+    {
+        var inquilino = repoInquilino.ObtenerInquilinos().FirstOrDefault(p => p.Id == id);
+
+        if (inquilino == null)
+        {
+            return NotFound();
+        }
+        return View(inquilino);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Editar(Inquilino inquilino)
+    {
+        if (ModelState.IsValid)
+        {
+            repoInquilino.ActualizarInquilino(inquilino);
+            TempData["MensajeExito"] = "Inquilino editado con éxito ✅";
+            return RedirectToAction(nameof(Index));
+        }
+        return View(inquilino);
+    }
+
+}

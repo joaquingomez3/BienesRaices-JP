@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using BienesRaices.Models;
-
-namespace BienesRaices.Controllers;
+using bienesraices.Models;
+using bienesraices.Repositorios;
+namespace bienesraices.Controllers;
 
 public class HomeController : Controller
 {
@@ -15,6 +15,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        //ViewBag.Usuario = HttpContext.Session.GetString("UsuarioNombre") ?? "Usuario";
         return View();
     }
 

@@ -1,4 +1,4 @@
-namespace BienesRaices.Models;
+namespace bienesraices.Models;
 
 public class ErrorViewModel
 {
