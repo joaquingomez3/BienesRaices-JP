@@ -50,7 +50,7 @@
                         Dirección</label>
                     <input asp-for="Direccion" class="form-control" />
                     <span asp-validation-for="Direccion" class="text-danger"></span>
-                </div>
+                <input type="hidden" name="Estado" value="1" />
 
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn text-white" style="background-color:#47220d;">
@@ -62,7 +62,4 @@
     </div>
 </div>
 
-@section Scripts {
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <partial name="_ValidationScriptsPartial" />
-}
+

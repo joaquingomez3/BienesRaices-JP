@@ -1,20 +1,24 @@
 using MySql.Data.MySqlClient;
 using bienesraices.Models;
-
 namespace bienesraices.Repositorios;
 
 using System.Collections.Generic;
-public class RepositorioInquilino
-{
-    string ConnectionString = "Server=localhost;User=root;Password=;Database=Inmobiliaria;SslMode=none";
+using Mysqlx.Crud;
 
+public class RepositorioInquilino:RepositorioBase
+{
+
+    public RepositorioInquilino(IConfiguration configuration):base(configuration)
+    {
+
+    }      
     public List<Inquilino> ObtenerInquilinos()
     {
         List<Inquilino> inquilinos = new List<Inquilino>();
 
-        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = "SELECT * FROM  inquilino";
+            var query = "SELECT * FROM  inquilino WHERE estado = 1";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
@@ -41,9 +45,9 @@ public class RepositorioInquilino
     }
     public void CrearInquilino(Inquilino inquilino)
     {
-        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = "INSERT INTO inquilino (dni, nombre_completo, telefono, email, direccion) VALUES (@dni, @nombre_completo, @telefono, @email, @direccion)";
+            var query = "INSERT INTO inquilino (dni, nombre_completo, telefono, email, direccion, estado) VALUES (@dni, @nombre_completo, @telefono, @email, @direccion, @estado)";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
@@ -52,7 +56,7 @@ public class RepositorioInquilino
                 command.Parameters.AddWithValue("@telefono", inquilino.Telefono);
                 command.Parameters.AddWithValue("@email", inquilino.Email);
                 command.Parameters.AddWithValue("@direccion", inquilino.Direccion);
-
+                command.Parameters.AddWithValue("@estado", inquilino.Estado);
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -62,9 +66,9 @@ public class RepositorioInquilino
 
     public void ActualizarInquilino(Inquilino inquilino)
     {
-        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = "UPDATE inquilino SET dni = @dni, nombre_completo = @nombre_completo, telefono = @telefono, email = @email, direccion = @direccion WHERE id = @id";
+            var query = "UPDATE inquilino SET dni = @dni, nombre_completo = @nombre_completo, telefono = @telefono, email = @email, direccion = @direccion, estado = @estado WHERE id = @id";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
@@ -74,10 +78,61 @@ public class RepositorioInquilino
                 command.Parameters.AddWithValue("@telefono", inquilino.Telefono);
                 command.Parameters.AddWithValue("@email", inquilino.Email);
                 command.Parameters.AddWithValue("@direccion", inquilino.Direccion);
+                command.Parameters.AddWithValue("@estado", inquilino.Estado);
 
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
+            }
+        }
+    }
+    
+     public Inquilino? ObtenerPropietarioPorId(int id)
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = "SELECT * FROM inquilino WHERE id = @id";
+
+            using(MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                connection.Open();
+
+                var reader = command.ExecuteReader();
+
+
+                    if (reader.Read()) 
+                    {
+                        return new Inquilino
+                        {
+                            Id = reader.GetInt32("id"),
+                            Dni = reader.GetString("dni"),
+                            Nombre_completo = reader.GetString("nombre_completo"),
+                            Telefono = reader.GetString("telefono"),
+                            Email = reader.GetString("email"),
+                            Direccion = reader.GetString("direccion"),
+                            Estado = reader.GetInt32("estado")
+
+                        };
+                    }
+            }
+        }
+        return null;
+    }
+
+    public void EliminarInquilino(Inquilino inquilino)
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = "UPDATE inquilino SET estado = 0 WHERE id = @id";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", inquilino.Id);
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+
             }
         }
     }

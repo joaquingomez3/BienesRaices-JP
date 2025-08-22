@@ -11,7 +11,7 @@
     </a>
 </div>
 
-<div class="card shadow-lg border-0 rounded-3">
+<div class="card mt-3 shadow-lg border-0 rounded-3 ">
     <div class="card-header  text-white text-center py-3" style="background-color:#bb4900; color: #fff;">
         <h2 class="mb-0">📋 Lista de Inquilinos</h2>
     </div>
@@ -47,14 +47,19 @@
                         <td>@Html.DisplayFor(modelItem => item.Email)</td>
                         <td>@Html.DisplayFor(modelItem => item.Direccion)</td>
                         <td class="text-center">
+
                             <a asp-controller="Inquilino" asp-action="Editar" asp-route-id="@item.Id"
-                                class="btn btn-sm btn-outline-warning me-1">
+                                class="btn btn-sm btn-outline-warning me-1 ">
                                 <i class="bi bi-pencil-square"></i> Editar
                             </a>
 
-                            <a class="btn btn-sm btn-outline-danger" href="@Url.Action("Delete", new { id = item.Id })">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </a>
+                            <form asp-action="Eliminar" asp-controller="Inquilino" method="post" style="display:inline;">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </form>
+
                         </td>
                     </tr>
                 }
@@ -79,7 +84,7 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                        });
+                                });
                     </text>
             }
 
@@ -91,5 +96,43 @@
                     order: [[0, 'asc']]
                 });
         });
+       
+        $(function () {
+            $('.form-eliminar').on('submit', function (e) {
+                e.preventDefault(); // Evita el envío automático
+
+                const form = this;
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará un inquilino.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#bb4900',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Envía el formulario si el usuario confirma
+                    }
+                });
+            });
+
+            // Mostrar alerta de éxito si viene desde TempData
+            @if (TempData["MensajeExito"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
+                        confirmButtonColor: '#bb4900'
+                    });
+                </text>
+            }
+        });
+    
+}
     </script>
 }

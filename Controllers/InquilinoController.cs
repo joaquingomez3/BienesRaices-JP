@@ -8,10 +8,10 @@ public class InquilinoController : Controller
 {
     private readonly ILogger<InquilinoController> _logger;
     private RepositorioInquilino repoInquilino;
-    public InquilinoController(ILogger<InquilinoController> logger)
+    public InquilinoController(ILogger<InquilinoController> logger, IConfiguration configuration)
     {
         _logger = logger;
-        repoInquilino = new RepositorioInquilino();
+        repoInquilino = new RepositorioInquilino(configuration);
     }
     public IActionResult Index()
     {
@@ -42,7 +42,7 @@ public class InquilinoController : Controller
     [HttpGet]
     public IActionResult Editar(int id)
     {
-        var inquilino = repoInquilino.ObtenerInquilinos().FirstOrDefault(p => p.Id == id);
+        var inquilino = repoInquilino.ObtenerPropietarioPorId(id);
 
         if (inquilino == null)
         {
@@ -63,5 +63,23 @@ public class InquilinoController : Controller
         }
         return View(inquilino);
     }
+
+    [HttpGet]
+    public IActionResult Eliminar()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Eliminar(int id)
+    {
+        var inquilino = new Inquilino { Id = id };
+        repoInquilino.EliminarInquilino(inquilino);
+        TempData["MensajeExito"] = "Inquilino eliminado con éxito ✅";
+        return RedirectToAction(nameof(Index));
+    }
+
+
 
 }

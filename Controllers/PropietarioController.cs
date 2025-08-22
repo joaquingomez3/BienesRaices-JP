@@ -8,10 +8,10 @@ public class PropietarioController : Controller
 {
     private readonly ILogger<PropietarioController> _logger;
     private RepositorioPropietario repoPropietario;
-    public PropietarioController(ILogger<PropietarioController> logger)
+    public PropietarioController(ILogger<PropietarioController> logger, IConfiguration configuration)
     {
         _logger = logger;
-        repoPropietario = new RepositorioPropietario();
+        repoPropietario = new RepositorioPropietario(configuration);
     }
     public IActionResult Index()
     {
@@ -42,7 +42,7 @@ public class PropietarioController : Controller
     [HttpGet]
     public IActionResult Editar(int id)
     {
-        var propietario = repoPropietario.ObtenerPropietarios().FirstOrDefault(p => p.Id == id);
+        var propietario = repoPropietario.ObtenerPropietarioPorId(id);
 
         if (propietario == null)
         {
@@ -63,5 +63,21 @@ public class PropietarioController : Controller
         }
         return View(propietario);
     }
+    [HttpGet]
+    public IActionResult Eliminar()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Eliminar(int id)
+    {
+        var propietario = new Propietario { Id = id };
+        repoPropietario.EliminarPropietario(propietario);
+        TempData["MensajeExito"] = "Propietario eliminado con éxito ✅";
+        return RedirectToAction(nameof(Index));
+    }
+
 
 }
