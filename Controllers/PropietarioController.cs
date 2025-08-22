@@ -33,6 +33,7 @@ public class PropietarioController : Controller
         if (ModelState.IsValid)
         {
             repoPropietario.CrearPropietario(propietario);
+            TempData["MensajeExito"] = "Propietario creado con éxito ✅";
             return RedirectToAction(nameof(Index));
         }
         return View(propietario);
@@ -57,6 +58,7 @@ public class PropietarioController : Controller
         if (ModelState.IsValid)
         {
             repoPropietario.ActualizarPropietario(propietario);
+            TempData["MensajeExito"] = "Propietario editado con éxito ✅";
             return RedirectToAction(nameof(Index));
         }
         return View(propietario);

@@ -67,34 +67,29 @@
 
 
 
-<script>
-    $(document).ready(function () {
-        // Mostrar alerta si hay mensaje de éxito desde TempData
-        @if (TempData["MensajeExito"] != null)
-            {
-                <text>
-                    Swal.fire({
-                        icon: 'success',
-                    title: '¡Éxito!',
-                    text: '@TempData["MensajeExito"]',
-                    confirmButtonColor: '#bb4900'
-                                            });
-                </text>
-        }
+@section Scripts {
+    <script>
+        $(function () {
+            // Mostrar alerta si vino desde TempData
+            @if (TempData["MensajeExito"] != null)
+                {
+                    <text>
+                        Swal.fire({
+                            icon: 'success',
+                        title: '¡Éxito!',
+                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
+                        confirmButtonColor: '#bb4900'
+                        });
+                    </text>
+            }
 
-
-</script>
-
-
-<script>
-                $(document).ready(function () {
-                    $('#tablaInquilinos').DataTable({
-                        "language": {
-                            "url": "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-                        },
-                        "pageLength": 5,
-                        "lengthMenu": [5, 10, 25, 50],
-                        "order": [[0, "asc"]]
-                    });
+                // Inicializar DataTable
+                $('#tablaInquilinos').DataTable({
+                    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' },
+                    pageLength: 5,
+                    lengthMenu: [5, 10, 25, 50],
+                    order: [[0, 'asc']]
                 });
-</script>
+        });
+    </script>
+}
