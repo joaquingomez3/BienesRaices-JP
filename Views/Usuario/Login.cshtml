@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="container mt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="text-center mb-4">
+                <img src="~/imagenes/logo.png" alt="Bienes Raíces JP" style="max-width:150px;">
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header text-center py-3" style="background-color:#bb4900;">
+                    <h3 class="mb-0 text-white">🔑 Iniciar Sesión</h3>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger text-center">
+                            @ViewBag.Error
+                        </div>
+                    }
+
+                    <form asp-controller="Home" asp-action="Index" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                placeholder="ejemplo@correo.com" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="clave" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="clave" name="clave" placeholder="********"
+                                required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary"
+                                style="background-color:#bb4900; border:none;">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-3 text-center">
+                        <small>¿No tienes cuenta? <a asp-controller="Usuario" asp-action="Crear">Regístrate
+                                aquí</a></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

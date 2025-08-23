@@ -10,5 +10,7 @@ namespace bienesraices.Models
         public string Email { get; set; } = "";
         public string Direccion { get; set; } = "";
         public int Estado { get; set; }
+
+
     }
 }

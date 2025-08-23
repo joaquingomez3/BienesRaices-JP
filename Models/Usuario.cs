@@ -10,7 +10,7 @@ namespace bienesraices.Models
         public string Password { get; set; } = "";
         public int Id_tipo_usuario { get; set; }
         public bool Activo { get; set; }
-        public DateTime Creado { get; set; }
+        
         public string? Foto { get; set; }
     }
 }
