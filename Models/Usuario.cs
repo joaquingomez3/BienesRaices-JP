@@ -10,7 +10,8 @@ namespace bienesraices.Models
         public string Password { get; set; } = "";
         public int Id_tipo_usuario { get; set; }
         public bool Activo { get; set; }
-        
+
         public string? Foto { get; set; }
+        public string RolUsuario { get; set; } = "";
     }
 }

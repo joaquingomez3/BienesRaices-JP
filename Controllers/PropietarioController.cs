@@ -2,8 +2,10 @@ using bienesraices.Models;
 using bienesraices.Repositorios;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 namespace bienesraices.Controllers;
 
+[Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
 public class PropietarioController : Controller
 {
     private readonly ILogger<PropietarioController> _logger;
@@ -13,6 +15,8 @@ public class PropietarioController : Controller
         _logger = logger;
         repoPropietario = new RepositorioPropietario(configuration);
     }
+
+    // [Authorize(Roles = "Admin")]
     public IActionResult Index()
     {
         var lista = repoPropietario.ObtenerPropietarios();

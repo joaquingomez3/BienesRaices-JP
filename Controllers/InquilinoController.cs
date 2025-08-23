@@ -2,8 +2,10 @@ using bienesraices.Models;
 using bienesraices.Repositorios;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 namespace bienesraices.Controllers;
 
+[Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
 public class InquilinoController : Controller
 {
     private readonly ILogger<InquilinoController> _logger;

@@ -23,7 +23,31 @@
 </head>
 
 <body>
-    <header> </header>
+    @if (ViewData["OcultarHeader"] == null || !(bool)ViewData["OcultarHeader"])
+    {
+
+        <header class="navbar navbar-expand-lg navbar-dark  shadow-sm" style="background-color:#bb4900; ">
+            <div class="container-fluid" style="color:white;">
+                <!-- Logo a la izquierda -->
+                <a class="navbar-brand d-flex align-items-center" href="/Home/Index">
+                    <img src="~/imagenes/logo.png" alt="Logo" style="height:40px;" class="me-2">
+                    <span class="text-white">Bienes Raíces</span>
+                </a>
+
+                <!-- Email del usuario a la derecha -->
+                <div class="dropdown ms-auto">
+                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" id="userMenu"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        @User.Identity.Name <!-- acá se muestra el email de la persona logueada -->
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                        <li><a style="color:#bb4900; " class="dropdown-item" asp-controller="Usuario"
+                                asp-action="Salir">Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+    }
 
     <div class="container">
         <main role="main" class="pb-3">

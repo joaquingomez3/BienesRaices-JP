@@ -2,9 +2,11 @@ using bienesraices.Models;
 using bienesraices.Repositorios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics;
 namespace bienesraices.Controllers;
 
+[Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
 public class InmuebleController : Controller
 {
     private readonly RepositorioInmueble repoInmueble;

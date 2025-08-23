@@ -15,7 +15,11 @@ public class RepositorioUsuario : RepositorioBase
 
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = "SELECT * FROM usuario";
+            var query = @"SELECT u.id, u.nombre_usuario, u.apellido_usuario, u.email, u.password, 
+                             u.id_tipo_usuario, u.activo, u.foto,
+                             t.rol_usuario
+                      FROM usuario u
+                      INNER JOIN tipo_usuario t ON u.id_tipo_usuario = t.id_tipo_usuario";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
@@ -33,7 +37,9 @@ public class RepositorioUsuario : RepositorioBase
                         Password = reader.GetString("password"),
                         Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
                         Activo = reader.GetBoolean("activo"),
-                        
+                        Foto = reader.IsDBNull(reader.GetOrdinal("foto")) ? null : reader["foto"].ToString(),
+                        RolUsuario = reader.GetString("rol_usuario")  // ← nuevo campo
+
 
                     });
                 }
@@ -58,7 +64,7 @@ public class RepositorioUsuario : RepositorioBase
                 command.Parameters.AddWithValue("@password", usuario.Password);
                 command.Parameters.AddWithValue("@id_tipo_usuario", usuario.Id_tipo_usuario);
                 command.Parameters.AddWithValue("@activo", usuario.Activo);
-                
+
 
                 connection.Open();
                 command.ExecuteNonQuery();
@@ -113,64 +119,34 @@ public class RepositorioUsuario : RepositorioBase
         {
             var query = "SELECT * FROM usuario WHERE id = @id";
 
-            using(MySqlCommand command = new MySqlCommand(query, connection))
+            using (MySqlCommand command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@id", id);
                 connection.Open();
 
                 var reader = command.ExecuteReader();
-                    if (reader.Read()) 
+                if (reader.Read())
+                {
+                    return new Usuario
                     {
-                        return new Usuario
-                        {
-                            Id = reader.GetInt32("id"),
-                            Nombre_usuario = reader.GetString("nombre_usuario"),
-                            Apellido_usuario = reader.GetString("apellido_usuario"),
-                            Email = reader.GetString("email"),
-                            Password = reader.GetString("password"),
-                            Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
-                            Activo = reader.GetBoolean("activo"),
-                            
+                        Id = reader.GetInt32("id"),
+                        Nombre_usuario = reader.GetString("nombre_usuario"),
+                        Apellido_usuario = reader.GetString("apellido_usuario"),
+                        Email = reader.GetString("email"),
+                        Password = reader.GetString("password"),
+                        Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
+                        Activo = reader.GetBoolean("activo"),
 
-                        };
-                    }
+
+                    };
+                }
             }
         }
         return null;
     }
     public Usuario? ObtenerUsuarioPorEmailClave(string email, string password)
     {
-        Usuario? usuario = null;
-    
-        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        {
-            var query = "SELECT * FROM usuario WHERE email = @email AND password = @password";
-
-            using(MySqlCommand command = new MySqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@email", email );
-                command.Parameters.AddWithValue("@password", password );
-                connection.Open();
-
-                var reader = command.ExecuteReader();
-                    if (reader.Read()) 
-                    {
-                        return new Usuario
-                        {
-                            Id = reader.GetInt32("id"),
-                            Nombre_usuario = reader.GetString("nombre_usuario"),
-                            Apellido_usuario = reader.GetString("apellido_usuario"),
-                            Email = reader.GetString("email"),
-                            Password = reader.GetString("password"),
-                            Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
-                            Activo = reader.GetBoolean("activo"),
-                            
-
-                        };
-                    }
-            }
-        }
-        return usuario;
+        return ObtenerUsuarios().FirstOrDefault(u => u.Email == email && u.Password == password);
     }
 
 }

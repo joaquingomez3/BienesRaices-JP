@@ -1,5 +1,7 @@
+@model bienesraices.Models.Usuario
 @{
     ViewData["Title"] = "Iniciar Sesión";
+    ViewData["OcultarHeader"] = true;
 }
 
 <div class="container mt-3">
@@ -21,7 +23,7 @@
                         </div>
                     }
 
-                    <form asp-controller="Home" asp-action="Index" method="post">
+                    <form asp-controller="Usuario" asp-action="Login" method="post">
                         <div class="mb-3">
                             <label for="email" class="form-label">Correo electrónico</label>
                             <input type="email" class="form-control" id="email" name="email"
@@ -30,8 +32,8 @@
 
                         <div class="mb-3">
                             <label for="clave" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="clave" name="clave" placeholder="********"
-                                required>
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="********" required>
                         </div>
 
                         <div class="d-grid gap-2">

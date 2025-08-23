@@ -2,8 +2,10 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using bienesraices.Models;
 using bienesraices.Repositorios;
+using Microsoft.AspNetCore.Authorization;
 namespace bienesraices.Controllers;
 
+[Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
