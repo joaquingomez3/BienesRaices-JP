@@ -68,4 +68,9 @@ public class UsuarioController : Controller
 
         return RedirectToAction("Login", "Usuario");
     }
+
+    public IActionResult Crear()
+    {
+        return View();
+    }
 }
