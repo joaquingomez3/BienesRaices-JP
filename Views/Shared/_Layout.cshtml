@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
 
     <!-- (Opcional) Estilo para que Select2 use todo el ancho del form-control -->
     <style>
@@ -21,12 +23,10 @@
         }
     </style>
 </head>
-
-<body>
-    @if (ViewData["OcultarHeader"] == null || !(bool)ViewData["OcultarHeader"])
+ @if (ViewData["OcultarHeader"] == null || !(bool)ViewData["OcultarHeader"])
     {
 
-        <header class="navbar navbar-expand-lg navbar-dark  shadow-sm" style="background-color:#bb4900; ">
+        <header class="navbar navbar-expand-lg navbar-dark" >
             <div class="container-fluid" style="color:white;">
                 <!-- Logo a la izquierda -->
                 <a class="navbar-brand d-flex align-items-center" href="/Home/Index">
@@ -36,18 +36,55 @@
 
                 <!-- Email del usuario a la derecha -->
                 <div class="dropdown ms-auto">
-                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" id="userMenu"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        @User.Identity.Name <!-- acá se muestra el email de la persona logueada -->
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                        <li><a style="color:#bb4900; " class="dropdown-item" asp-controller="Usuario"
-                                asp-action="Salir">Cerrar Sesión</a></li>
-                    </ul>
-                </div>
+    <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" role="button"
+       id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <div class="d-flex align-items-center">
+
+        <div class="d-flex flex-column text-end me-2">
+            <span class="fw-bold mt-4">@User.Identity.Name</span>
+            <small class="text-muted mt-1">
+                (@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)
+            </small>
+        </div>
+
+        @if (User.FindFirst("FotoPerfil")?.Value != null)
+        {
+            <img src="@User.FindFirst("FotoPerfil")?.Value"
+                 class="rounded-circle ms-2"
+                 alt="Usuario"
+                 width="32"
+                 height="32" />
+        }
+        else
+        {
+            <i class="fas fa-user-circle fa-2x ms-2"></i>
+        }
+    </div>
+}
+else
+{
+    <span>No has iniciado Sesión</span>
+}
+
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+        <li>
+            <a style="color:#bb4900;" class="dropdown-item" asp-controller="Usuario" asp-action="Salir">
+                Cerrar Sesión
+            </a>
+        </li>
+    </ul>
+</div>
+
             </div>
         </header>
     }
+<body>
+   
 
     <div class="container">
         <main role="main" class="pb-3">
@@ -55,7 +92,7 @@
         </main>
     </div>
 
-    <footer class="footer bg-light text-dark fixed-bottom border-top shadow-sm">
+    <footer class="footer bg-light text-dark fixed-bottom border-top shadow-sm ">
         <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center py-2">
             <!-- Texto -->
             <div class="text-center text-md-start small mb-2 mb-md-0">

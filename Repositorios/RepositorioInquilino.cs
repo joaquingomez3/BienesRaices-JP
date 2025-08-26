@@ -4,14 +4,15 @@ namespace bienesraices.Repositorios;
 
 using System.Collections.Generic;
 using Mysqlx.Crud;
+using MySqlX.XDevAPI.Common;
 
-public class RepositorioInquilino:RepositorioBase
+public class RepositorioInquilino : RepositorioBase
 {
 
-    public RepositorioInquilino(IConfiguration configuration):base(configuration)
+    public RepositorioInquilino(IConfiguration configuration) : base(configuration)
     {
 
-    }      
+    }
     public List<Inquilino> ObtenerInquilinos()
     {
         List<Inquilino> inquilinos = new List<Inquilino>();
@@ -86,14 +87,14 @@ public class RepositorioInquilino:RepositorioBase
             }
         }
     }
-    
-     public Inquilino? ObtenerPropietarioPorId(int id)
+
+    public Inquilino? ObtenerPropietarioPorId(int id)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
             var query = "SELECT * FROM inquilino WHERE id = @id";
 
-            using(MySqlCommand command = new MySqlCommand(query, connection))
+            using (MySqlCommand command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@id", id);
                 connection.Open();
@@ -101,20 +102,20 @@ public class RepositorioInquilino:RepositorioBase
                 var reader = command.ExecuteReader();
 
 
-                    if (reader.Read()) 
+                if (reader.Read())
+                {
+                    return new Inquilino
                     {
-                        return new Inquilino
-                        {
-                            Id = reader.GetInt32("id"),
-                            Dni = reader.GetString("dni"),
-                            Nombre_completo = reader.GetString("nombre_completo"),
-                            Telefono = reader.GetString("telefono"),
-                            Email = reader.GetString("email"),
-                            Direccion = reader.GetString("direccion"),
-                            Estado = reader.GetInt32("estado")
+                        Id = reader.GetInt32("id"),
+                        Dni = reader.GetString("dni"),
+                        Nombre_completo = reader.GetString("nombre_completo"),
+                        Telefono = reader.GetString("telefono"),
+                        Email = reader.GetString("email"),
+                        Direccion = reader.GetString("direccion"),
+                        Estado = reader.GetInt32("estado")
 
-                        };
-                    }
+                    };
+                }
             }
         }
         return null;
@@ -136,4 +137,62 @@ public class RepositorioInquilino:RepositorioBase
             }
         }
     }
+
+    public async Task<int> ContarInquilinos()
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            var query = "SELECT COUNT(*) FROM inquilino";
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                var result = await command.ExecuteScalarAsync();
+                return Convert.ToInt32(result);
+            }
+        }
+
+    }
+    public async Task<List<Inquilino>> InquilinosPaginados(int page, int pageSize)
+{
+    var lista = new List<Inquilino>();
+
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        await connection.OpenAsync();
+
+        var query = @"
+            SELECT Id, Dni, Nombre_completo, Telefono, Email, Direccion,Estado
+            FROM inquilino
+            WHERE estado = 1
+            ORDER BY Id
+            LIMIT @PageSize OFFSET @Offset";
+
+        using (MySqlCommand command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@PageSize", pageSize);
+            command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    lista.Add(new Inquilino
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                        Dni = reader.GetString(reader.GetOrdinal("Dni")),
+                        Nombre_completo = reader.GetString(reader.GetOrdinal("Nombre_completo")),
+                        Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                        Email = reader.GetString(reader.GetOrdinal("Email")),
+                        Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
+                        Estado = reader.GetInt32(reader.GetOrdinal("Estado"))
+                    });
+                }
+            }
+        }
+    }
+
+    return lista;
+}
+
 }

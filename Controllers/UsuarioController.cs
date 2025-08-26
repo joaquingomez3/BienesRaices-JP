@@ -35,30 +35,37 @@ public class UsuarioController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(Usuario usuario)
     {
-        var usuarioEncontrado = repoUsuario.ObtenerUsuarioPorEmailClave(usuario.Email, usuario.Password);
+        var usuarioEncontrado = repoUsuario.ObtenerUsuarioPorEmail(usuario.Email);
         if (usuarioEncontrado != null)
         {
-            var claims = new List<Claim>
+            var hasher = new PasswordHasher<Usuario>();
+            var res = hasher.VerifyHashedPassword(usuarioEncontrado, usuarioEncontrado.Password, usuario.Password);
+
+            if (res == PasswordVerificationResult.Success)
+            {
+                var claims = new List<Claim>
             {
 
-                new Claim(ClaimTypes.Name, usuarioEncontrado.Email),
+                new Claim(ClaimTypes.Name, usuarioEncontrado.Nombre_usuario+ " "+usuarioEncontrado.Apellido_usuario),
                 new Claim(ClaimTypes.Role, usuarioEncontrado.RolUsuario.ToLower()) // Rol en minúsculas
             };
-
-            var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(
+                var claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity));
 
-            return RedirectToAction("Index", "Home"); // redirige al Home
+                return RedirectToAction("Index", "Home");
+
+            }
+
         }
         else
         {
             ViewBag.Error = "Email o clave incorrectos";
-            return View();
+
         }
+        return View();
     }
 
 
@@ -69,8 +76,21 @@ public class UsuarioController : Controller
         return RedirectToAction("Login", "Usuario");
     }
 
+    [HttpGet]
+
     public IActionResult Crear()
     {
         return View();
+    }
+
+    [HttpPost]
+    public IActionResult CrearUsuario(Usuario usuario)
+    {
+        var hasher = new PasswordHasher<Usuario>();
+        usuario.Password = hasher.HashPassword(usuario, usuario.Password);
+        usuario.Activo = true;
+
+        repoUsuario.Alta(usuario); // Método que guarda el usuario en la base
+        return RedirectToAction("Index");
     }
 }

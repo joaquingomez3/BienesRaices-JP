@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using bienesraices.Repositorios;
+using Microsoft.AspNetCore.Identity;
+using bienesraices.Models;
+
 var builder = WebApplication.CreateBuilder(args); //crea el buider de la aplicacion
 
 // registra el servicio de controladores con vistas (MVC)
@@ -20,7 +24,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Administrador", policy => policy.RequireRole("administrador"));
-    options.AddPolicy("Empleado", policy => policy.RequireRole("empleado"));
+    //options.AddPolicy("Empleado", policy => policy.RequireRole("empleado"));
 });
 
 var app = builder.Build(); //construye la aplicacion
@@ -44,4 +48,36 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 
+//precarga admin
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var config = services.GetRequiredService<IConfiguration>();
+    var repo = new RepositorioUsuario(config);
+
+    var emailAdmin = "admin@inmobiliaria.com";
+    var existe = repo.ObtenerUsuarioPorEmail(emailAdmin);
+    if (existe == null)
+    {
+
+        var hasher = new PasswordHasher<Usuario>();
+        var admin = new Usuario
+        {
+            Nombre_usuario = "Juan",
+            Apellido_usuario = "Pérez",
+            Email = emailAdmin,
+            Id_tipo_usuario = 1, 
+            Activo = true,
+            Foto = null
+        };
+        admin.Password = hasher.HashPassword(admin, "Admin1234");
+
+        repo.Alta(admin);
+        Console.WriteLine("✅ Usuario administrador creado automáticamente.");
+    }
+    else
+    {
+        Console.WriteLine("ℹ️ El administrador ya existe.");
+    }
+}
 app.Run();
