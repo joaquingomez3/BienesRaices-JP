@@ -1,65 +1,62 @@
 @model bienesraices.Models.Inquilino
-
 @{
     ViewData["Title"] = "Editar Inquilino";
 }
 
 <div class="container mt-5">
-    <div class="mb-3 d-flex justify-content-start">
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Volver
-        </a>
-    </div>
+    <h2 class="mb-4 text-center">✏️ Editar Inquilino</h2>
 
-    <div class="card shadow-lg border-0 rounded-3">
-        <div class="card-header text-white text-center py-3" style="background-color:#bb4900;">
-            <h2 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Editar Inquilino</h2>
+    <form asp-action="Editar" method="post" class="shadow-lg p-4 rounded bg-light">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Dni" class="form-label fw-bold"><i class="bi bi-card-heading me-1"></i> DNI</label>
+                <input asp-for="Dni" class="form-control" />
+                <span asp-validation-for="Dni" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-8">
+                <label asp-for="Nombre_completo" class="form-label fw-bold"><i class="bi bi-person me-1"></i> Nombre
+                    Completo</label>
+                <input asp-for="Nombre_completo" class="form-control" />
+                <span asp-validation-for="Nombre_completo" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Telefono" class="form-label fw-bold"><i class="bi bi-telephone me-1"></i>
+                    Teléfono</label>
+                <input asp-for="Telefono" class="form-control" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Email" class="form-label fw-bold"><i class="bi bi-envelope me-1"></i> Email</label>
+                <input asp-for="Email" type="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Direccion" class="form-label fw-bold"><i class="bi bi-house-door me-1"></i>
+                    Dirección</label>
+                <input asp-for="Direccion" class="form-control" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
         </div>
-        <div class="card-body">
-            <form asp-action="Editar" method="post">
-                <input type="hidden" asp-for="Id" />
 
-                <div class="mb-3">
-                    <label asp-for="Dni" class="form-label fw-bold"><i class="bi bi-card-heading me-1"></i> DNI</label>
-                    <input asp-for="Dni" class="form-control" />
-                    <span asp-validation-for="Dni" class="text-danger"></span>
-                </div>
+        <input type="hidden" name="Estado" value="1" />
 
-                <div class="mb-3">
-                    <label asp-for="Nombre_completo" class="form-label fw-bold"><i class="bi bi-person me-1"></i>
-                        Nombre</label>
-                    <input asp-for="Nombre_completo" class="form-control" />
-                    <span asp-validation-for="Nombre_completo" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Telefono" class="form-label fw-bold"><i class="bi bi-telephone me-1"></i>
-                        Teléfono</label>
-                    <input asp-for="Telefono" class="form-control" />
-                    <span asp-validation-for="Telefono" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label fw-bold"><i class="bi bi-envelope me-1"></i> Email</label>
-                    <input asp-for="Email" class="form-control" type="email" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Direccion" class="form-label fw-bold"><i class="bi bi-house-door me-1"></i>
-                        Dirección</label>
-                    <input asp-for="Direccion" class="form-control" />
-                    <span asp-validation-for="Direccion" class="text-danger"></span>
-                <input type="hidden" name="Estado" value="1" />
-
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn text-white" style="background-color:#47220d;">
-                        <i class="bi bi-save me-1"></i> Guardar cambios
-                    </button>
-                </div>
-            </form>
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+            <button type="submit" class="btn btn-warning text-white">
+                <i class="bi bi-save me-1"></i> Guardar cambios
+            </button>
         </div>
-    </div>
+    </form>
 </div>
 
-
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

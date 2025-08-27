@@ -44,7 +44,7 @@ public class InmuebleController : Controller
     {
         ViewBag.Usos = new SelectList(new[] { "Comercial", "Residencial" });
         ViewBag.Estados = new SelectList(new[] { "Disponible", "Ocupado", "Reservado" });
-        //ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
         return View();
     }
@@ -61,8 +61,56 @@ public class InmuebleController : Controller
         // Si falla, volvemos a cargar los combos
         ViewBag.Usos = new SelectList(new[] { "Comercial", "Residencial" });
         ViewBag.Estados = new SelectList(new[] { "Disponible", "Ocupado", "Reservado" });
-        //ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
         return View(inmueble);
+    }
+
+    public IActionResult Editar(int id)
+    {
+        var inmueble = repoInmueble.ObtenerPorId(id);
+        if (inmueble == null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
+
+        return View(inmueble);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Editar(int id, Inmueble inmueble)
+    {
+        if (id != inmueble.Id) return BadRequest();
+
+        if (ModelState.IsValid)
+        {
+            repoInmueble.Editar(inmueble);
+            TempData["MensajeExito"] = "Inmueble actualizado correctamente";
+            return RedirectToAction("Index");
+        }
+
+        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
+        return View(inmueble);
+    }
+
+    [HttpGet]
+    public IActionResult Eliminar()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Eliminar(int id)
+    {
+        var inmueble = new Inmueble { Id = id };
+        repoInmueble.EliminarInmueble(inmueble);
+        TempData["MensajeExito"] = "Inmueble eliminado con éxito ✅";
+        return RedirectToAction(nameof(Index));
     }
 }

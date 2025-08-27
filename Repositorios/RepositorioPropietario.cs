@@ -12,39 +12,39 @@ public class RepositorioPropietario : RepositorioBase
 
     }
 
-    // public List<Propietario> ObtenerPropietarios()
-    // {
-    //     List<Propietario> propietarios = new List<Propietario>();
+    public List<Propietario> ObtenerPropietarios()
+    {
+        List<Propietario> propietarios = new List<Propietario>();
 
-    //     using (MySqlConnection connection = new MySqlConnection(connectionString))
-    //     {
-    //         var query = "SELECT * FROM  propietario WHERE estado = 1";
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = "SELECT * FROM  propietario WHERE estado = 1";
 
-    //         using (MySqlCommand command = new MySqlCommand(query, connection))
-    //         {
-    //             connection.Open();
-    //             var reader = command.ExecuteReader();
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                connection.Open();
+                var reader = command.ExecuteReader();
 
-    //             while (reader.Read())
-    //             {
-    //                 propietarios.Add(new Propietario
-    //                 {
-    //                     Id = reader.GetInt32("id"),
-    //                     Dni = reader.GetString("dni"),
-    //                     Apellido = reader.GetString("apellido"),
-    //                     Nombre = reader.GetString("nombre"),
-    //                     Telefono = reader.GetString("telefono"),
-    //                     Email = reader.GetString("email"),
-    //                     Direccion = reader.GetString("direccion")
+                while (reader.Read())
+                {
+                    propietarios.Add(new Propietario
+                    {
+                        Id = reader.GetInt32("id"),
+                        Dni = reader.GetString("dni"),
+                        Apellido = reader.GetString("apellido"),
+                        Nombre = reader.GetString("nombre"),
+                        Telefono = reader.GetString("telefono"),
+                        Email = reader.GetString("email"),
+                        Direccion = reader.GetString("direccion")
 
-    //                 });
-    //             }
-    //             connection.Close();
-    //         }
-    //         return propietarios;
+                    });
+                }
+                connection.Close();
+            }
+            return propietarios;
 
-    //     }
-    // }
+        }
+    }
     public void CrearPropietario(Propietario propietario)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))

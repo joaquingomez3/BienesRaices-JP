@@ -70,6 +70,88 @@ public class RepositorioInmueble : RepositorioBase
         }
     }
 
+    public Inmueble? ObtenerPorId(int id)
+    {
+        Inmueble? inmueble = null;
+        using (var connection = new MySqlConnection(connectionString))
+        {
+            var sql = @"SELECT i.id, i.direccion, i.uso, i.ambientes, i.coordenadas, 
+                                   i.precio, i.estado, i.id_propietario, i.id_tipo
+                            FROM inmueble i
+                            WHERE i.id = @id";
+            using (var command = new MySqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                connection.Open();
+                var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    inmueble = new Inmueble
+                    {
+                        Id = reader.GetInt32(nameof(Inmueble.Id)),
+                        Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+                        Uso = reader.GetString(nameof(Inmueble.Uso)),
+                        Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                        Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
+                        Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                        Estado = reader.GetString(nameof(Inmueble.Estado)),
+                        Id_Propietario = reader.GetInt32(nameof(Inmueble.Id_Propietario)),
+                        Id_Tipo = reader.GetInt32(nameof(Inmueble.Id_Tipo))
+                    };
+                }
+                connection.Close();
+            }
+        }
+        return inmueble;
+    }
+
+    public int Editar(Inmueble inmueble)
+    {
+        int res = -1;
+        using (var connection = new MySqlConnection(connectionString))
+        {
+            var sql = @"UPDATE inmueble 
+                            SET direccion=@direccion, uso=@uso, ambientes=@ambientes,
+                                coordenadas=@coordenadas, precio=@precio, estado=@estado,
+                                id_propietario=@id_propietario, id_tipo=@id_tipo
+                            WHERE id=@id";
+            using (var command = new MySqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@direccion", inmueble.Direccion);
+                command.Parameters.AddWithValue("@uso", inmueble.Uso);
+                command.Parameters.AddWithValue("@ambientes", inmueble.Ambientes);
+                command.Parameters.AddWithValue("@coordenadas", inmueble.Coordenadas);
+                command.Parameters.AddWithValue("@precio", inmueble.Precio);
+                command.Parameters.AddWithValue("@estado", inmueble.Estado);
+                command.Parameters.AddWithValue("@id_propietario", inmueble.Id_Propietario);
+                command.Parameters.AddWithValue("@id_tipo", inmueble.Id_Tipo);
+                command.Parameters.AddWithValue("@id", inmueble.Id);
+
+                connection.Open();
+                res = command.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+        return res;
+    }
+
+    public void EliminarInmueble(Inmueble inmueble)
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = "UPDATE inmueble SET estado = 0 WHERE id = @id";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", inmueble.Id);
+                connection.Open();
+                command.ExecuteNonQuery();
+                connection.Close();
+
+            }
+        }
+    }
+
     public async Task<int> ContarInmuebles()
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -96,10 +178,21 @@ public class RepositorioInmueble : RepositorioBase
             await connection.OpenAsync();
 
             var query = @"
-                SELECT Id, Direccion, Uso, Ambientes, Coordenadas, Precio, Estado, Id_Propietario, Id_Tipo
-                FROM inmueble
-                WHERE estado = 1
-                ORDER BY Id
+                SELECT 
+                    i.id,
+                    i.direccion,
+                    i.uso,
+                    i.ambientes,
+                    i.coordenadas,
+                    i.precio,
+                    i.estado,
+                    CONCAT(p.apellido, ' ', p.nombre) AS propietario,
+                    t.nombre AS tipo_inmueble
+                FROM inmueble i
+                INNER JOIN propietario p ON i.id_propietario = p.id
+                INNER JOIN tipo_inmueble t ON i.id_tipo = t.id
+                WHERE i.estado = 'DISPONIBLE'
+                ORDER BY i.id
                 LIMIT @PageSize OFFSET @Offset";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -120,8 +213,8 @@ public class RepositorioInmueble : RepositorioBase
                             Coordenadas = reader.GetString(reader.GetOrdinal("Coordenadas")),
                             Precio = reader.GetDecimal(reader.GetOrdinal("Precio")),
                             Estado = reader.GetString(reader.GetOrdinal("Estado")),
-                            Id_Propietario = reader.GetInt32(reader.GetOrdinal("Id_Propietario")),
-                            Id_Tipo = reader.GetInt32(reader.GetOrdinal("Id_Tipo"))
+                            PropietarioNombre = reader.GetString(reader.GetOrdinal("propietario")),
+                            TipoInmuebleNombre = reader.GetString(reader.GetOrdinal("tipo_inmueble"))
                         });
                     }
                 }

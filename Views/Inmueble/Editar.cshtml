@@ -1,0 +1,95 @@
+@model bienesraices.Models.Inmueble
+@{
+    ViewData["Title"] = "Editar Inmueble";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">✏️ Editar Inmueble</h2>
+
+    <form asp-action="Editar" method="post" class="shadow-lg p-4 rounded bg-light">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Direccion" class="form-label fw-bold"></label>
+                <input asp-for="Direccion" class="form-control" placeholder="Ej: Calle 123" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Uso" class="form-label fw-bold"></label>
+                <select asp-for="Uso" class="form-select">
+                    <option value="RESIDENCIAL">Residencial</option>
+                    <option value="COMERCIAL">Comercial</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Ambientes" class="form-label fw-bold"></label>
+                <input asp-for="Ambientes" type="number" class="form-control" min="1" />
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Coordenadas" class="form-label fw-bold"></label>
+                <input asp-for="Coordenadas" class="form-control" placeholder="-34.6037, -58.3816" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Precio" class="form-label fw-bold"></label>
+                <input asp-for="Precio" type="number" step="0.01" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Estado" class="form-label fw-bold"></label>
+                <select asp-for="Estado" class="form-select">
+                    <option value="DISPONIBLE">Disponible</option>
+                    <option value="SUSPENDIDO">Suspendido</option>
+                    <option value="OCUPADO">Ocupado</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Id_Propietario" class="form-label fw-bold">Propietario</label>
+                <select asp-for="Id_Propietario" class="form-select"
+                    asp-items="@(new SelectList(ViewBag.Propietarios, "Id", "Apellido"))">
+                    <option value="">-- Seleccione un propietario --</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Id_Tipo" class="form-label fw-bold">Tipo de Inmueble</label>
+                <select asp-for="Id_Tipo" class="form-select"
+                    asp-items="@(new SelectList(ViewBag.Tipos, "Id", "Nombre"))">
+                    <option value="">-- Seleccione un tipo --</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+            <button type="submit" class="btn btn-primary" style="background-color:#47220d;">
+                <i class="bi bi-save"></i> Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Mensaje de éxito
+        @if (TempData["MensajeExito"] != null)
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                    title: '¡Éxito!',
+                    text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
+                    confirmButtonColor: '#0d6efd'
+                                        });
+                </text>
+        }
+    </script>
+}

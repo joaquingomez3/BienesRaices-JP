@@ -38,7 +38,8 @@
                         <a asp-action="Editar" asp-route-id="@inquilino.Id" class="btn btn-sm btn-warning me-1">
                             <i class="bi bi-pencil-square"></i>
                         </a>
-                        <form asp-action="Eliminar" asp-route-id="@inquilino.Id" method="post" class="d-inline">
+                        <form asp-action="Eliminar" asp-route-id="@inquilino.Id" method="post"
+                            class="d-inline form-eliminar">
                             <button type="submit" class="btn btn-sm btn-danger">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -75,9 +76,10 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                                        });
+                                                                                });
                     </text>
             }
+
 
                 // Inicializar DataTable
                 $('#tablaInquilinos').DataTable({
@@ -87,7 +89,11 @@
                     order: [[0, 'asc']]
                 });
         });
+    </script>
 
+
+
+    <script>
         $(function () {
             $('.form-eliminar').on('submit', function (e) {
                 e.preventDefault(); // Evita el envío automático
@@ -96,7 +102,7 @@
 
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: "Esta acción eliminará un inquilino.",
+                    text: "Esta acción eliminará un propietario.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#bb4900',
@@ -119,11 +125,9 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                            });
+                                                                    });
                     </text>
             }
-                            });
-    
-                    }
+                                });
     </script>
 }
