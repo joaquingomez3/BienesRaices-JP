@@ -1,104 +1,75 @@
 @model IEnumerable<bienesraices.Models.Usuario>
 
 @{
-    ViewData["Title"] = "Listado de Usuarios";
+    ViewData["Title"] = "📋 Usuarios activos";
 }
 
 <div class="container mt-5">
-    <div class="mb-3 d-flex justify-content-start"></div>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Volver
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    <a asp-action="Crear" class="btn btn-success mb-3">
+        <i class="bi bi-person-plus"></i> Nuevo Usuario
     </a>
-</div>
 
-<div class="card mt-3 shadow-lg border-0 rounded-3 ">
-    <div class="card-header text-white text-center py-3" style="background-color:#bb4900; color: #fff;">
-        <h2 class="mb-0">📋 Lista de Usuarios</h2>
-    </div>
-    <div class="mt-3 ms-3">
-        <a asp-controller="Usuario" asp-action="Crear" class="btn btn-outline-dark">
-            <i class="bi bi-person-plus-fill me-1"></i> Agregar Usuario
-        </a>
-    </div>
-
-    <div class="card-body">
-
-        <table id="tablaUsuarios" class="table table-hover table-striped align-middle">
-            <thead class="table-dark">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th class="text-center">Tipo</th>
+                <th class="text-center">Foto</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model)
+            {
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.First().Id)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Nombre_usuario)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Apellido_usuario)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Email)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Id_tipo_usuario)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Activo)</th>
-
-                    <th>@Html.DisplayNameFor(model => model.First().Foto)</th>
-                    <th class="text-center">Acciones</th>
+                    <td>@usuario.Nombre_usuario</td>
+                    <td>@usuario.Apellido_usuario</td>
+                    <td>@usuario.Email</td>
+                    <td class="text-center">@usuario.RolUsuario</td>
+                    <td class="text-center">
+                        @if (!string.IsNullOrEmpty(usuario.Foto))
+                        {
+                            <img src="@usuario.Foto" alt="Foto" width="40" height="40" class="rounded-circle" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-person-circle fs-3 text-secondary"></i>
+                        }
+                    </td>
+                    <td class="text-center">
+                        <a asp-action="Editar" asp-route-id="@usuario.Id" class="btn btn-sm btn-warning me-1">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form asp-action="Eliminar" asp-route-id="@usuario.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.Id</td>
-                        <td>@item.Nombre_usuario</td>
-                        <td>@item.Apellido_usuario</td>
-                        <td>@item.Email</td>
-                        <td>@item.Id_tipo_usuario</td>
-                        <td>
-                            @if (item.Activo)
-                            {
-                                <span class="badge bg-success">Activo</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">Inactivo</span>
-                            }
-                        </td>
+            }
+        </tbody>
+    </table>
 
-                        <td>
-                            @if (!string.IsNullOrEmpty(item.Foto))
-                            {
-                                <img src="@item.Foto" alt="Foto" width="40" height="40" class="rounded-circle" />
-                            }
-                            else
-                            {
-                                <i class="bi bi-person-circle fs-3"></i>
-                            }
-                        </td>
-                        <td class="text-center">
-                            <a asp-controller="Usuario" asp-action="Editar" asp-route-id="@item.Id"
-                                class="btn btn-sm btn-outline-warning me-1 ">
-                                <i class="bi bi-pencil-square"></i> Editar
-                            </a>
-
-                            <form asp-action="Eliminar" asp-controller="Usuario" method="post" class="form-eliminar"
-                                style="display:inline;">
-                                <input type="hidden" name="id" value="@item.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
 </div>
 
 @section Scripts {
     <script>
-        $(function () {
-            // Inicializar DataTable
-            $('#tablaUsuarios').DataTable({
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' },
-                pageLength: 5,
-                lengthMenu: [5, 10, 25, 50],
-                order: [[0, 'asc']]
-            });
-
+       
             // Confirmación con SweetAlert2
             $('.form-eliminar').on('submit', function (e) {
                 e.preventDefault();
