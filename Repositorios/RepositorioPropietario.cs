@@ -5,46 +5,46 @@ namespace bienesraices.Repositorios;
 
 using System.Collections.Generic;
 // Repositorio para manejar las operaciones relacionadas con los propietarios
-public class RepositorioPropietario:RepositorioBase
+public class RepositorioPropietario : RepositorioBase
 {
-    public RepositorioPropietario(IConfiguration configuration):base(configuration)
+    public RepositorioPropietario(IConfiguration configuration) : base(configuration)
     {
-    
-   }
 
-    public List<Propietario> ObtenerPropietarios()
-    {
-        List<Propietario> propietarios = new List<Propietario>();
-
-        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        {
-            var query = "SELECT * FROM  propietario WHERE estado = 1";
-
-            using (MySqlCommand command = new MySqlCommand(query, connection))
-            {
-                connection.Open();
-                var reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    propietarios.Add(new Propietario
-                    {
-                        Id = reader.GetInt32("id"),
-                        Dni = reader.GetString("dni"),
-                        Apellido = reader.GetString("apellido"),
-                        Nombre = reader.GetString("nombre"),
-                        Telefono = reader.GetString("telefono"),
-                        Email = reader.GetString("email"),
-                        Direccion = reader.GetString("direccion")
-
-                    });
-                }
-                connection.Close();
-            }
-            return propietarios;
-
-        }
     }
+
+    // public List<Propietario> ObtenerPropietarios()
+    // {
+    //     List<Propietario> propietarios = new List<Propietario>();
+
+    //     using (MySqlConnection connection = new MySqlConnection(connectionString))
+    //     {
+    //         var query = "SELECT * FROM  propietario WHERE estado = 1";
+
+    //         using (MySqlCommand command = new MySqlCommand(query, connection))
+    //         {
+    //             connection.Open();
+    //             var reader = command.ExecuteReader();
+
+    //             while (reader.Read())
+    //             {
+    //                 propietarios.Add(new Propietario
+    //                 {
+    //                     Id = reader.GetInt32("id"),
+    //                     Dni = reader.GetString("dni"),
+    //                     Apellido = reader.GetString("apellido"),
+    //                     Nombre = reader.GetString("nombre"),
+    //                     Telefono = reader.GetString("telefono"),
+    //                     Email = reader.GetString("email"),
+    //                     Direccion = reader.GetString("direccion")
+
+    //                 });
+    //             }
+    //             connection.Close();
+    //         }
+    //         return propietarios;
+
+    //     }
+    // }
     public void CrearPropietario(Propietario propietario)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -74,7 +74,7 @@ public class RepositorioPropietario:RepositorioBase
         {
             var query = "SELECT * FROM propietario WHERE id = @id";
 
-            using(MySqlCommand command = new MySqlCommand(query, connection))
+            using (MySqlCommand command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@id", id);
                 connection.Open();
@@ -82,21 +82,21 @@ public class RepositorioPropietario:RepositorioBase
                 var reader = command.ExecuteReader();
 
 
-                    if (reader.Read()) 
+                if (reader.Read())
+                {
+                    return new Propietario
                     {
-                        return new Propietario
-                        {
-                            Id = reader.GetInt32("id"),
-                            Dni = reader.GetString("dni"),
-                            Apellido = reader.GetString("apellido"),
-                            Nombre = reader.GetString("nombre"),
-                            Telefono = reader.GetString("telefono"),
-                            Email = reader.GetString("email"),
-                            Direccion = reader.GetString("direccion"),
-                            Estado = reader.GetInt32("estado")
+                        Id = reader.GetInt32("id"),
+                        Dni = reader.GetString("dni"),
+                        Apellido = reader.GetString("apellido"),
+                        Nombre = reader.GetString("nombre"),
+                        Telefono = reader.GetString("telefono"),
+                        Email = reader.GetString("email"),
+                        Direccion = reader.GetString("direccion"),
+                        Estado = reader.GetInt32("estado")
 
-                        };
-                    }
+                    };
+                }
             }
         }
         return null;
@@ -124,21 +124,80 @@ public class RepositorioPropietario:RepositorioBase
             }
         }
     }
-        public void EliminarPropietario(Propietario propietario)
+    public void EliminarPropietario(Propietario propietario)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
             var query = "UPDATE propietario SET estado = 0 WHERE id = @id";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
-           {
+            {
                 command.Parameters.AddWithValue("@id", propietario.Id);
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
 
-           }
+            }
         }
     }
+
+    public async Task<int> ContarPropietarios()
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            var query = "SELECT COUNT(*) FROM propietario";
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                var result = await command.ExecuteScalarAsync();
+                return Convert.ToInt32(result);
+            }
+        }
+    }
+
+    public async Task<List<Propietario>> PropietariosPaginados(int page, int pageSize)
+    {
+        var lista = new List<Propietario>();
+
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT *
+                FROM propietario
+                WHERE estado = 1
+                ORDER BY Id
+                LIMIT @PageSize OFFSET @Offset";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@PageSize", pageSize);
+                command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        lista.Add(new Propietario
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Dni = reader.GetString(reader.GetOrdinal("Dni")),
+                            Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                            Apellido = reader.GetString(reader.GetOrdinal("Apellido")),
+                            Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
+                            Estado = reader.GetInt32(reader.GetOrdinal("Estado"))
+                        });
+                    }
+                }
+            }
+        }
+
+        return lista;
+    }
+
 
 }

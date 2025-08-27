@@ -21,6 +21,19 @@ public class InquilinoController : Controller
         return View(lista);
     }*/
 
+    [HttpGet]
+    public async Task<IActionResult> Index(int page, int pageSize = 5)
+    {
+        page = page < 1 ? 1 : page;
+        var totalInquilinos = await repoInquilino.ContarInquilinos();
+        var inquilinos = await repoInquilino.InquilinosPaginados(page, pageSize);
+
+        ViewBag.TotalPages = (int)Math.Ceiling((double)totalInquilinos / pageSize);
+        ViewBag.CurrentPage = page;
+
+        return View(inquilinos);
+    }
+
     // crear inquilino
     [HttpGet]
     public IActionResult Crear()
@@ -81,16 +94,5 @@ public class InquilinoController : Controller
         TempData["MensajeExito"] = "Inquilino eliminado con éxito ✅";
         return RedirectToAction(nameof(Index));
     }
-    [HttpGet]
-    public async Task<IActionResult> Index(int page, int pageSize = 5)
-    {
-        page = page < 1 ? 1 : page;
-        var totalInquilinos = await repoInquilino.ContarInquilinos();
-        var inquilinos = await repoInquilino.InquilinosPaginados(page, pageSize);
 
-        ViewBag.TotalPages = (int)Math.Ceiling((double)totalInquilinos / pageSize);
-        ViewBag.CurrentPage = page;
-
-        return View(inquilinos);
-    }
 }

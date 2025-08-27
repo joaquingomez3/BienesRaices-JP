@@ -154,45 +154,45 @@ public class RepositorioInquilino : RepositorioBase
 
     }
     public async Task<List<Inquilino>> InquilinosPaginados(int page, int pageSize)
-{
-    var lista = new List<Inquilino>();
-
-    using (MySqlConnection connection = new MySqlConnection(connectionString))
     {
-        await connection.OpenAsync();
+        var lista = new List<Inquilino>();
 
-        var query = @"
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            var query = @"
             SELECT Id, Dni, Nombre_completo, Telefono, Email, Direccion,Estado
             FROM inquilino
             WHERE estado = 1
             ORDER BY Id
             LIMIT @PageSize OFFSET @Offset";
 
-        using (MySqlCommand command = new MySqlCommand(query, connection))
-        {
-            command.Parameters.AddWithValue("@PageSize", pageSize);
-            command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
-
-            using (var reader = await command.ExecuteReaderAsync())
+            using (MySqlCommand command = new MySqlCommand(query, connection))
             {
-                while (await reader.ReadAsync())
+                command.Parameters.AddWithValue("@PageSize", pageSize);
+                command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    lista.Add(new Inquilino
+                    while (await reader.ReadAsync())
                     {
-                        Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                        Dni = reader.GetString(reader.GetOrdinal("Dni")),
-                        Nombre_completo = reader.GetString(reader.GetOrdinal("Nombre_completo")),
-                        Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
-                        Email = reader.GetString(reader.GetOrdinal("Email")),
-                        Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
-                        Estado = reader.GetInt32(reader.GetOrdinal("Estado"))
-                    });
+                        lista.Add(new Inquilino
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Dni = reader.GetString(reader.GetOrdinal("Dni")),
+                            Nombre_completo = reader.GetString(reader.GetOrdinal("Nombre_completo")),
+                            Telefono = reader.GetString(reader.GetOrdinal("Telefono")),
+                            Email = reader.GetString(reader.GetOrdinal("Email")),
+                            Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
+                            Estado = reader.GetInt32(reader.GetOrdinal("Estado"))
+                        });
+                    }
                 }
             }
         }
-    }
 
-    return lista;
-}
+        return lista;
+    }
 
 }

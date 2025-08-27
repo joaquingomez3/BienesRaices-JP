@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h2 class="mb-4">📋 Inquilinos </h2>
 
-    <a asp-action="Index" class="btn btn-secondary mb-3"></a>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-3">
         <i class="bi bi-arrow-left"></i> Volver
     </a>
 
@@ -75,7 +75,7 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                        });
+                                                                        });
                     </text>
             }
 
@@ -119,11 +119,11 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                            });
+                                                            });
                     </text>
             }
-                    });
+                            });
     
-            }
+                    }
     </script>
 }

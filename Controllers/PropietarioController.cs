@@ -17,10 +17,23 @@ public class PropietarioController : Controller
     }
 
     // [Authorize(Roles = "Admin")]
-    public IActionResult Index()
+    // public IActionResult Index()
+    // {
+    //     var lista = repoPropietario.ObtenerPropietarios();
+    //     return View(lista);
+    // }
+
+    [HttpGet]
+    public async Task<IActionResult> Index(int page, int pageSize = 5)
     {
-        var lista = repoPropietario.ObtenerPropietarios();
-        return View(lista);
+        page = page < 1 ? 1 : page;
+        var totalPropietarios = await repoPropietario.ContarPropietarios();
+        var propietarios = await repoPropietario.PropietariosPaginados(page, pageSize);
+
+        ViewBag.TotalPages = (int)Math.Ceiling((double)totalPropietarios / pageSize);
+        ViewBag.CurrentPage = page;
+
+        return View(propietarios);
     }
 
     // crear propietario

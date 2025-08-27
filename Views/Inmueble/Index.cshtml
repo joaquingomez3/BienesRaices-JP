@@ -5,72 +5,68 @@
 }
 
 <div class="container mt-5">
-    <div class="mb-3 d-flex justify-content-start"></div>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+    <h2 class="mb-4">📋 Inmueble</h2>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-3">
         <i class="bi bi-arrow-left"></i> Volver
     </a>
-</div>
 
-<div class="card mt-3 shadow-lg border-0 rounded-3 ">
-    <div class="card-header  text-white text-center py-3" style="background-color:#bb4900; color: #fff;">
-        <h2 class="mb-0">📋 Lista de Inmuebles</h2>
-    </div>
-    <div class="mt-3 ms-3">
-        <a asp-controller="Inmueble" asp-action="Crear" class="btn btn-outline-dark">
-            <i class="bi bi-person-plus-fill me-1"></i> Agregar Inmueble
-        </a>
-    </div>
+    <a asp-action="Crear" class="btn btn-success mb-3">
+        <i class="bi bi-person-plus"></i> Nuevo Inquilino
+    </a>
 
-    <div class="card-body">
 
-        <table id="tablaInmueble" class="table table-hover table-striped align-middle">
-            <thead class="table-dark">
+    <table id="tablaInmueble" class="table table-hover table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Direccion</th>
+                <th>Uso</th>
+                <th>Ambientes</th>
+                <th>Coordenadas</th>
+                <th>Precio</th>
+                <th>Propietario</th>
+                <th>Tipo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inmueble in Model)
+            {
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.First().Id)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Direccion)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Uso)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Ambientes)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Coordenadas)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().Precio)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().PropietarioNombre)</th>
-                    <th>@Html.DisplayNameFor(model => model.First().TipoInmuebleNombre)</th>
 
-                    <th class="text-center">Acciones</th>
+                    <td>@inmueble.Direccion</td>
+                    <td>@inmueble.Uso</td>
+                    <td>@inmueble.Ambientes</td>
+                    <td>@inmueble.Coordenadas</td>
+                    <td>@inmueble.Precio</td>
+                    <th>@inmueble.PropietarioNombre</th>
+                    <th>@inmueble.TipoInmuebleNombre</th>
+                    <td>
+
+                        <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-sm btn-warning me-1">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form asp-action="Eliminar" asp-route-id="@inmueble.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@Html.DisplayFor(modelItem => item.Id)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Direccion)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Uso)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Ambientes)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Coordenadas)</td>
-                        <td>@Html.DisplayFor(modelItem => item.Precio)</td>
-                        <th>@Html.DisplayFor(modelItem => item.PropietarioNombre)</th>
-                        <th>@Html.DisplayFor(modelItem => item.TipoInmuebleNombre)</th>
-                        <td class="text-center">
+            }
+        </tbody>
+    </table>
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
 
-                            <a asp-controller="Inmueble" asp-action="Editar" asp-route-id="@item.Id"
-                                class="btn btn-sm btn-outline-warning me-1 ">
-                                <i class="bi bi-pencil-square"></i> Editar
-                            </a>
-
-                            <form asp-action="Eliminar" asp-controller="Inmueble" method="post" style="display:inline;">
-                                <input type="hidden" name="id" value="@item.Id" />
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash"></i> Eliminar
-                                </button>
-                            </form>
-
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
 </div>
 
 
@@ -88,7 +84,7 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                                });
+                                                                                        });
                     </text>
             }
 
@@ -132,11 +128,11 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                    });
+                                                                            });
                     </text>
             }
-                        });
+                                    });
     
-                }
+                            }
     </script>
 }

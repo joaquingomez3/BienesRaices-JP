@@ -24,67 +24,65 @@
     </style>
 </head>
 @if (!(ViewBag.OcultarHeader ?? false))
-    {
+{
 
-        <header class="navbar navbar-expand-lg navbar-dark" >
-            <div class="container-fluid" style="color:white;">
-               
-                <a class="navbar-brand d-flex align-items-center" href="/Home/Index">
-                    <img src="~/imagenes/logo.png" alt="Logo" style="height:40px;" class="me-2">
-                    <span class="text-white">Bienes Raíces</span>
+    <header class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid" style="color:white;">
+
+            <a class="navbar-brand d-flex align-items-center" href="/Home/Index">
+                <img src="~/imagenes/logo.png" alt="Logo" style="height:40px;" class="me-2">
+                <span class="text-white">Bienes Raíces</span>
+            </a>
+
+
+            <div class="dropdown ms-auto">
+                <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" role="button"
+                    id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <div class="d-flex align-items-center">
+
+                            <div class="d-flex flex-column text-end me-2">
+                                <span class="fw-bold mt-4">@User.Identity.Name</span>
+                                <small class="text-muted mt-1">
+                                    (@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)
+                                </small>
+                            </div>
+
+                            @if (User.FindFirst("FotoPerfil")?.Value != null)
+                            {
+                                <img src="@User.FindFirst("FotoPerfil")?.Value" class="rounded-circle ms-2" alt="Usuario" width="32"
+                                    height="32" />
+                            }
+                            else
+                            {
+                                <i class="fas fa-user-circle fa-2x ms-2"></i>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span>No has iniciado Sesión</span>
+                    }
+
                 </a>
 
-                
-                <div class="dropdown ms-auto">
-    <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" role="button"
-       id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-
-                @if (User.Identity != null && User.Identity.IsAuthenticated)
-{
-    <div class="d-flex align-items-center">
-
-        <div class="d-flex flex-column text-end me-2">
-            <span class="fw-bold mt-4">@User.Identity.Name</span>
-            <small class="text-muted mt-1">
-                (@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)
-            </small>
-        </div>
-
-        @if (User.FindFirst("FotoPerfil")?.Value != null)
-        {
-            <img src="@User.FindFirst("FotoPerfil")?.Value"
-                 class="rounded-circle ms-2"
-                 alt="Usuario"
-                 width="32"
-                 height="32" />
-        }
-        else
-        {
-            <i class="fas fa-user-circle fa-2x ms-2"></i>
-        }
-    </div>
-}
-else
-{
-    <span>No has iniciado Sesión</span>
-}
-
-    </a>
-
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-        <li>
-            <a style="color:#bb4900;" class="dropdown-item" asp-controller="Usuario" asp-action="Salir">
-                Cerrar Sesión
-            </a>
-        </li>
-    </ul>
-</div>
-
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                    <li>
+                        <a style="color:#bb4900;" class="dropdown-item" asp-controller="Usuario" asp-action="Salir">
+                            Cerrar Sesión
+                        </a>
+                    </li>
+                </ul>
             </div>
-        </header>
-    }
+
+        </div>
+    </header>
+}
+
 <body>
-   
+
 
     <div class="container">
         <main role="main" class="pb-3">
@@ -101,14 +99,14 @@ else
 
             <!-- Redes sociales -->
             <div class="text-center text-md-end">
-                <a href="#" class="text-dark text-opacity-75 mx-2"><i class="bi bi-facebook fs-5"></i></a>
-                <a href="#" class="text-dark text-opacity-75 mx-2"><i class="bi bi-instagram fs-5"></i></a>
-                <a href="#" class="text-dark text-opacity-75 mx-2"><i class="bi bi-linkedin fs-5"></i></a>
+                <a href="https://github.com/joaquingomez3/BienesRaices-JP.git" class="text-dark text-opacity-75 mx-2"><i
+                        class="bi bi-github fs-5"></i> GitHub </a>
+
             </div>
         </div>
     </footer>
 
-    
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

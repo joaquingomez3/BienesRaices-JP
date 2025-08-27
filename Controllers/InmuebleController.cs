@@ -20,10 +20,23 @@ public class InmuebleController : Controller
         repoTipo = new RepositorioTipoInmueble(configuration);
     }
 
-    public IActionResult Index()
+    // public IActionResult Index()
+    // {
+    //     var lista = repoInmueble.ObtenerInmuebles();
+    //     return View(lista);
+    // }
+
+    [HttpGet]
+    public async Task<IActionResult> Index(int page, int pageSize = 5)
     {
-        var lista = repoInmueble.ObtenerInmuebles();
-        return View(lista);
+        page = page < 1 ? 1 : page;
+        var totalInmuebles = await repoInmueble.ContarInmuebles();
+        var inmuebles = await repoInmueble.InmueblesPaginados(page, pageSize);
+
+        ViewBag.TotalPages = (int)Math.Ceiling((double)totalInmuebles / pageSize);
+        ViewBag.CurrentPage = page;
+
+        return View(inmuebles);
     }
 
     [HttpGet]
@@ -31,7 +44,7 @@ public class InmuebleController : Controller
     {
         ViewBag.Usos = new SelectList(new[] { "Comercial", "Residencial" });
         ViewBag.Estados = new SelectList(new[] { "Disponible", "Ocupado", "Reservado" });
-        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        //ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
         return View();
     }
@@ -48,7 +61,7 @@ public class InmuebleController : Controller
         // Si falla, volvemos a cargar los combos
         ViewBag.Usos = new SelectList(new[] { "Comercial", "Residencial" });
         ViewBag.Estados = new SelectList(new[] { "Disponible", "Ocupado", "Reservado" });
-        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        //ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
         return View(inmueble);
     }
