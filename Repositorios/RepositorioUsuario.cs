@@ -36,6 +36,7 @@ public class RepositorioUsuario : RepositorioBase
                         Email = reader.GetString("email"),
                         Password = reader.GetString("password"),
                         Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
+                        RolUsuario = reader.GetString("rol_usuario"),
                         Activo = reader.GetBoolean("activo"),
                         Foto = reader.IsDBNull(reader.GetOrdinal("foto")) ? null : reader["foto"].ToString(),
                        // ← nuevo campo
@@ -55,11 +56,11 @@ public class RepositorioUsuario : RepositorioBase
     int res = -1;
     using (MySqlConnection connection = new MySqlConnection(connectionString))
     {
-        string sql = @"INSERT INTO Usuario 
+            string sql = @"INSERT INTO Usuario 
                        (Nombre_usuario, Apellido_usuario, Email, Password, Id_tipo_usuario, Activo, Foto)
                        VALUES 
                        (@nombre, @apellido, @email, @password, @idTipo, @activo, @foto);
-                       SELECT SCOPE_IDENTITY();";
+                       SELECT LAST_INSERT_ID()";
 
         using (MySqlCommand cmd = new MySqlCommand(sql, connection))
         {
@@ -199,9 +200,6 @@ public class RepositorioUsuario : RepositorioBase
 
     return usuario;
 }
-    public Usuario? ObtenerUsuarioPorEmailClave(string email, string password)
-    {
-        return ObtenerUsuarios().FirstOrDefault(u => u.Email == email && u.Password == password);
-    }
+   
 
 }

@@ -13,7 +13,7 @@ public class RepositorioInquilino : RepositorioBase
     {
 
     }
-    public List<Inquilino> ObtenerInquilinos()
+    /*public List<Inquilino> ObtenerInquilinos()
     {
         List<Inquilino> inquilinos = new List<Inquilino>();
 
@@ -43,7 +43,7 @@ public class RepositorioInquilino : RepositorioBase
             return inquilinos;
 
         }
-    }
+    }*/
     public void CrearInquilino(Inquilino inquilino)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))

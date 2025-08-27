@@ -15,11 +15,11 @@ public class InquilinoController : Controller
         _logger = logger;
         repoInquilino = new RepositorioInquilino(configuration);
     }
-    public IActionResult Index()
+    /*public IActionResult Index()
     {
         var lista = repoInquilino.ObtenerInquilinos();
         return View(lista);
-    }
+    }*/
 
     // crear inquilino
     [HttpGet]
@@ -81,7 +81,7 @@ public class InquilinoController : Controller
         TempData["MensajeExito"] = "Inquilino eliminado con éxito ✅";
         return RedirectToAction(nameof(Index));
     }
-    [HttpGet("Inquilino/Paginado")]
+    [HttpGet]
     public async Task<IActionResult> Index(int page, int pageSize = 5)
     {
         page = page < 1 ? 1 : page;
