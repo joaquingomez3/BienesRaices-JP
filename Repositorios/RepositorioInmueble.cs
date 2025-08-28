@@ -76,7 +76,7 @@ public class RepositorioInmueble : RepositorioBase
         using (var connection = new MySqlConnection(connectionString))
         {
             var sql = @"SELECT i.id, i.direccion, i.uso, i.ambientes, i.coordenadas, 
-                                   i.precio, i.estado, i.id_propietario, i.id_tipo
+                                   i.precio, i.estado, i.id_propietario, i.id_tipo, descripcion
                             FROM inmueble i
                             WHERE i.id = @id";
             using (var command = new MySqlCommand(sql, connection))
@@ -96,7 +96,8 @@ public class RepositorioInmueble : RepositorioBase
                         Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
                         Estado = reader.GetString(nameof(Inmueble.Estado)),
                         Id_Propietario = reader.GetInt32(nameof(Inmueble.Id_Propietario)),
-                        Id_Tipo = reader.GetInt32(nameof(Inmueble.Id_Tipo))
+                        Id_Tipo = reader.GetInt32(nameof(Inmueble.Id_Tipo)),
+                        Descripcion = reader.IsDBNull(reader.GetOrdinal("descripcion")) ? null : reader.GetString("descripcion")
                     };
                 }
                 connection.Close();
@@ -104,6 +105,50 @@ public class RepositorioInmueble : RepositorioBase
         }
         return inmueble;
     }
+    
+    public List<FotoInmueble> ObtenerFotosPorInmuebleId(int id)
+{
+    var fotos = new List<FotoInmueble>();
+
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        var query = "SELECT id_foto, id_inmueble, url, archivo FROM foto_inmueble WHERE id_inmueble = @id";
+
+        using (MySqlCommand command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@id", id);
+            connection.Open();
+            
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var foto = new FotoInmueble
+                    {
+                        Id_foto = reader.GetInt32("id_foto"),
+                        Id_inmueble = reader.GetInt32("id_inmueble"),
+                        Url = reader.IsDBNull(reader.GetOrdinal("url")) ? null : reader.GetString("url"),
+                        Archivo = reader.IsDBNull(reader.GetOrdinal("archivo")) ? null : (byte[])reader["archivo"]
+                    };
+                    fotos.Add(foto);
+                }
+            }
+        }
+    }
+    return fotos; 
+}
+
+    public Inmueble? ObtenerInmuebleConFotos(int id)
+{
+    var inmueble = ObtenerPorId(id); 
+    
+    if (inmueble != null)
+    {
+        inmueble.Fotos = ObtenerFotosPorInmuebleId(id);
+    }
+    
+    return inmueble; 
+}
 
     public int Editar(Inmueble inmueble)
     {
@@ -113,7 +158,7 @@ public class RepositorioInmueble : RepositorioBase
             var sql = @"UPDATE inmueble 
                             SET direccion=@direccion, uso=@uso, ambientes=@ambientes,
                                 coordenadas=@coordenadas, precio=@precio, estado=@estado,
-                                id_propietario=@id_propietario, id_tipo=@id_tipo
+                                id_propietario=@id_propietario, id_tipo=@id_tipo, descripcion=@descripcion
                             WHERE id=@id";
             using (var command = new MySqlCommand(sql, connection))
             {
@@ -126,6 +171,7 @@ public class RepositorioInmueble : RepositorioBase
                 command.Parameters.AddWithValue("@id_propietario", inmueble.Id_Propietario);
                 command.Parameters.AddWithValue("@id_tipo", inmueble.Id_Tipo);
                 command.Parameters.AddWithValue("@id", inmueble.Id);
+                command.Parameters.AddWithValue("@descripcion", inmueble.Descripcion);
 
                 connection.Open();
                 res = command.ExecuteNonQuery();
@@ -134,6 +180,44 @@ public class RepositorioInmueble : RepositorioBase
         }
         return res;
     }
+
+   public int AgregarFoto(FotoInmueble foto)
+{
+    int res = -1;
+    using (var connection = new MySqlConnection(connectionString))
+    {
+        var sql = @"INSERT INTO foto_inmueble (id_inmueble, url, archivo)
+                    VALUES (@id_inmueble, @url, @archivo)";
+        using (var command = new MySqlCommand(sql, connection))
+        {
+            command.Parameters.Add("@id_inmueble", MySqlDbType.Int32).Value = foto.Id_inmueble;
+            var parametroUrl = command.Parameters.Add("@url", MySqlDbType.VarChar, 255);
+            if (!string.IsNullOrEmpty(foto.Url))
+                {
+                    parametroUrl.Value = foto.Url;
+                }
+                    else
+                {
+                    parametroUrl.Value = DBNull.Value;
+                }
+            var parametroArchivo = command.Parameters.Add("@archivo", MySqlDbType.LongBlob);
+            if (foto.Archivo != null)
+            {
+                parametroArchivo.Value = foto.Archivo;
+            }
+            else
+            {
+                parametroArchivo.Value = DBNull.Value;
+            }
+
+            connection.Open();
+            res = command.ExecuteNonQuery();
+            connection.Close();
+        }
+    }
+    return res;
+}
+
 
     public void EliminarInmueble(Inmueble inmueble)
     {
@@ -186,6 +270,7 @@ public class RepositorioInmueble : RepositorioBase
                     i.coordenadas,
                     i.precio,
                     i.estado,
+                    i.descripcion,
                     CONCAT(p.apellido, ' ', p.nombre) AS propietario,
                     t.nombre AS tipo_inmueble
                 FROM inmueble i

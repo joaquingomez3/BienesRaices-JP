@@ -35,5 +35,9 @@ namespace bienesraices.Models
 
         [Display(Name = "Tipo de Inmueble")]
         public string TipoInmuebleNombre { get; set; } = "";
+
+        public string? Descripcion { get; set; }
+
+        public List<FotoInmueble> Fotos { get; set; } = new List<FotoInmueble>();
     }
 }

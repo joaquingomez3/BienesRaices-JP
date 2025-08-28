@@ -11,6 +11,5 @@ namespace bienesraices.Models
         public string Direccion { get; set; } = "";
         public int Estado { get; set; }
 
-
     }
 }

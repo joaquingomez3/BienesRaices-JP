@@ -65,7 +65,7 @@ public class InmuebleController : Controller
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
         return View(inmueble);
     }
-
+    [HttpGet]
     public IActionResult Editar(int id)
     {
         var inmueble = repoInmueble.ObtenerPorId(id);
@@ -74,7 +74,14 @@ public class InmuebleController : Controller
             return NotFound();
         }
 
-        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        var propietarios = repoPropietario.ObtenerPropietarios()
+            .Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Dni} - {p.Apellido} {p.Nombre}"
+            }).ToList();
+
+        ViewBag.Propietarios = propietarios;
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
 
         return View(inmueble);
@@ -84,6 +91,7 @@ public class InmuebleController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Editar(int id, Inmueble inmueble)
     {
+
         if (id != inmueble.Id) return BadRequest();
 
         if (ModelState.IsValid)
@@ -93,7 +101,15 @@ public class InmuebleController : Controller
             return RedirectToAction("Index");
         }
 
-        ViewBag.Propietarios = repoPropietario.ObtenerPropietarios();
+        var propietarios = repoPropietario.ObtenerPropietarios()
+            .Select(p => new SelectListItem
+            {
+                Value = p.Id.ToString(),
+                Text = $"{p.Dni} - {p.Apellido} {p.Nombre}"
+            }).ToList();
+
+        ViewBag.Propietarios = propietarios;
+
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
         return View(inmueble);
     }
@@ -113,4 +129,6 @@ public class InmuebleController : Controller
         TempData["MensajeExito"] = "Inmueble eliminado con éxito ✅";
         return RedirectToAction(nameof(Index));
     }
+    
+    
 }

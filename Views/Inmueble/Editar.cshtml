@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h2 class="mb-4 text-center">✏️ Editar Inmueble</h2>
 
-    <form asp-action="Editar" method="post" class="shadow-lg p-4 rounded bg-light">
+    <form asp-action="Editar" method="post" enctype="multipart/form-data" class="shadow-lg p-4 rounded bg-light">
         <input type="hidden" asp-for="Id" />
 
         <div class="row g-3">
@@ -51,7 +51,7 @@
             <div class="col-md-6">
                 <label asp-for="Id_Propietario" class="form-label fw-bold">Propietario</label>
                 <select asp-for="Id_Propietario" class="form-select"
-                    asp-items="@(new SelectList(ViewBag.Propietarios, "Id", "Apellido"))">
+                    asp-items="@(ViewBag.Propietarios as IEnumerable<SelectListItem>)">
                     <option value="">-- Seleccione un propietario --</option>
                 </select>
             </div>
@@ -62,6 +62,31 @@
                     asp-items="@(new SelectList(ViewBag.Tipos, "Id", "Nombre"))">
                     <option value="">-- Seleccione un tipo --</option>
                 </select>
+            </div>
+
+            <div class="col-12 mt-4">
+                <h4>Galería de Fotos</h4>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    @if (Model.Fotos != null && Model.Fotos.Any())
+                    {
+                        @foreach (var foto in Model.Fotos)
+                        {
+                            <div>
+                                <img src="@foto.Url" alt="Foto del inmueble" class="img-thumbnail" style="width: 150px;" />
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label for="fotosLocales" class="form-label fw-bold">Subir desde el ordenador</label>
+                <input type="file" id="fotosLocales" name="fotosLocales" class="form-control" multiple />
+            </div>
+
+            <div class="col-md-6">
+                <label for="urlFoto" class="form-label fw-bold">Agregar por URL</label>
+                <input type="url" id="urlFoto" name="urlFoto" class="form-control" placeholder="Ej: https://ejemplo.com/foto.jpg" />
             </div>
         </div>
 
@@ -79,17 +104,16 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Mensaje de éxito
         @if (TempData["MensajeExito"] != null)
-            {
-                <text>
-                    Swal.fire({
-                        icon: 'success',
+        {
+            <text>
+                Swal.fire({
+                    icon: 'success',
                     title: '¡Éxito!',
                     text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                     confirmButtonColor: '#0d6efd'
-                                        });
-                </text>
+                });
+            </text>
         }
     </script>
 }

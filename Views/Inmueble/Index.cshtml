@@ -19,13 +19,13 @@
         <thead class="table-dark">
             <tr>
                 <th>Direccion</th>
-                <th>Uso</th>
-                <th>Ambientes</th>
-                <th>Coordenadas</th>
-                <th>Precio</th>
-                <th>Propietario</th>
-                <th>Tipo</th>
-                <th>Acciones</th>
+                <th class="text-center">Uso</th>
+                <th class="text-center">Ambientes</th>
+                <th class="text-center">Coordenadas</th>
+                <th class="text-end">Precio</th>
+                <th class="text-center">Propietario</th>
+                <th class="text-center">Tipo</th>
+                <th class="text-center">Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -34,13 +34,13 @@
                 <tr>
 
                     <td>@inmueble.Direccion</td>
-                    <td>@inmueble.Uso</td>
-                    <td>@inmueble.Ambientes</td>
-                    <td>@inmueble.Coordenadas</td>
-                    <td>@inmueble.Precio</td>
-                    <th>@inmueble.PropietarioNombre</th>
-                    <th>@inmueble.TipoInmuebleNombre</th>
-                    <td>
+                    <td class="text-center">@inmueble.Uso</td>
+                    <td class="text-center">@inmueble.Ambientes</td>
+                    <td class="text-center">@inmueble.Coordenadas</td>
+                    <td class="text-end">$ @inmueble.Precio</td>
+                    <td>@inmueble.PropietarioNombre</td>
+                    <td class="text-center">@inmueble.TipoInmuebleNombre</td>
+                    <td class="text-center">
 
                         <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-sm btn-warning me-1">
                             <i class="bi bi-pencil-square"></i>
@@ -51,7 +51,9 @@
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
-
+                        <a asp-action="Detalles" asp-route-id="@inmueble.Id" class="btn btn-sm btn-info ms-1">
+                            <i class="bi bi-plus-lg"></i>
+                        </a>
                     </td>
                 </tr>
             }
