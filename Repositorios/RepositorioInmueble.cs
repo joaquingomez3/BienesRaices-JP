@@ -10,43 +10,7 @@ public class RepositorioInmueble : RepositorioBase
     {
 
     }
-
-    // public List<Inmueble> ObtenerInmuebles()
-    // {
-    //     List<Inmueble> inmuebles = new List<Inmueble>();
-
-    //     using (MySqlConnection connection = new MySqlConnection(connectionString))
-    //     {
-    //         var query = @"SELECT i.id, i.direccion, i.uso, i.ambientes, i.coordenadas, i.precio, i.estado, 
-    //                     p.nombre AS propietario, t.nombre AS tipo_inmueble 
-    //                     FROM inmueble i INNER JOIN propietario p ON i.id_propietario = p.id INNER JOIN tipo_inmueble t ON i.id_tipo = t.id; ";
-
-    //         using (MySqlCommand command = new MySqlCommand(query, connection))
-    //         {
-    //             connection.Open();
-    //             var reader = command.ExecuteReader();
-
-    //             while (reader.Read())
-    //             {
-    //                 inmuebles.Add(new Inmueble
-    //                 {
-    //                     Id = reader.GetInt32("id"),
-    //                     Direccion = reader.GetString("direccion"),
-    //                     Uso = reader.GetString("uso"),
-    //                     Ambientes = reader.GetInt32("ambientes"),
-    //                     Coordenadas = reader.GetString("coordenadas"),
-    //                     Precio = reader.GetDecimal("precio"),
-    //                     Estado = reader.GetString("estado"),
-    //                     PropietarioNombre = reader.GetString("propietario"),
-    //                     TipoInmuebleNombre = reader.GetString("tipo_inmueble")
-    //                 });
-    //             }
-    //             connection.Close();
-    //         }
-    //         return inmuebles;
-    //     }
-
-    // }
+    
     public void CrearInmueble(Inmueble inmueble)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -70,85 +34,48 @@ public class RepositorioInmueble : RepositorioBase
         }
     }
 
-    public Inmueble? ObtenerPorId(int id)
-    {
-        Inmueble? inmueble = null;
-        using (var connection = new MySqlConnection(connectionString))
-        {
-            var sql = @"SELECT i.id, i.direccion, i.uso, i.ambientes, i.coordenadas, 
-                                   i.precio, i.estado, i.id_propietario, i.id_tipo, descripcion
-                            FROM inmueble i
-                            WHERE i.id = @id";
-            using (var command = new MySqlCommand(sql, connection))
-            {
-                command.Parameters.AddWithValue("@id", id);
-                connection.Open();
-                var reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    inmueble = new Inmueble
-                    {
-                        Id = reader.GetInt32(nameof(Inmueble.Id)),
-                        Direccion = reader.GetString(nameof(Inmueble.Direccion)),
-                        Uso = reader.GetString(nameof(Inmueble.Uso)),
-                        Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
-                        Coordenadas = reader.GetString(nameof(Inmueble.Coordenadas)),
-                        Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
-                        Estado = reader.GetString(nameof(Inmueble.Estado)),
-                        Id_Propietario = reader.GetInt32(nameof(Inmueble.Id_Propietario)),
-                        Id_Tipo = reader.GetInt32(nameof(Inmueble.Id_Tipo)),
-                        Descripcion = reader.IsDBNull(reader.GetOrdinal("descripcion")) ? null : reader.GetString("descripcion")
-                    };
-                }
-                connection.Close();
-            }
-        }
-        return inmueble;
-    }
-    
-    public List<FotoInmueble> ObtenerFotosPorInmuebleId(int id)
+   public Inmueble? ObtenerPorId(int id)
 {
-    var fotos = new List<FotoInmueble>();
-
-    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    Inmueble? inmueble = null;
+    using (var connection = new MySqlConnection(connectionString))
     {
-        var query = "SELECT id_foto, id_inmueble, url, archivo FROM foto_inmueble WHERE id_inmueble = @id";
-
-        using (MySqlCommand command = new MySqlCommand(query, connection))
+        var sql = @"SELECT i.id, i.direccion, i.uso, i.ambientes, i.coordenadas, 
+                           i.precio, i.estado, i.id_propietario, i.id_tipo, i.descripcion,
+                           p.dni, p.apellido, p.nombre,
+                           t.nombre AS tipo_inmueble
+                    FROM inmueble i
+                    INNER JOIN propietario p ON p.id = i.id_propietario
+                    INNER JOIN tipo_inmueble t ON t.id = i.id_tipo
+                    WHERE i.id = @id";
+        using (var command = new MySqlCommand(sql, connection))
         {
             command.Parameters.AddWithValue("@id", id);
             connection.Open();
-            
-            using (var reader = command.ExecuteReader())
+            var reader = command.ExecuteReader();
+            if (reader.Read())
             {
-                while (reader.Read())
+                inmueble = new Inmueble
                 {
-                    var foto = new FotoInmueble
-                    {
-                        Id_foto = reader.GetInt32("id_foto"),
-                        Id_inmueble = reader.GetInt32("id_inmueble"),
-                        Url = reader.IsDBNull(reader.GetOrdinal("url")) ? null : reader.GetString("url"),
-                        Archivo = reader.IsDBNull(reader.GetOrdinal("archivo")) ? null : (byte[])reader["archivo"]
-                    };
-                    fotos.Add(foto);
-                }
+                    Id = reader.GetInt32("id"),
+                    Direccion = reader.GetString("direccion"),
+                    Uso = reader.GetString("uso"),
+                    Ambientes = reader.GetInt32("ambientes"),
+                    Coordenadas = reader.GetString("coordenadas"),
+                    Precio = reader.GetDecimal("precio"),
+                    Estado = reader.GetString("estado"),
+                    Id_Propietario = reader.GetInt32("id_propietario"),
+                    Id_Tipo = reader.GetInt32("id_tipo"),
+                    Descripcion = reader.IsDBNull(reader.GetOrdinal("descripcion")) ? null : reader.GetString("descripcion"),
+                    PropietarioNombre = reader.GetString("dni") + " - " + reader.GetString("apellido") + " " + reader.GetString("nombre"),
+                    TipoInmuebleNombre = reader.GetString("tipo_inmueble")
+                };
             }
+            connection.Close();
         }
     }
-    return fotos; 
+    return inmueble;
 }
-
-    public Inmueble? ObtenerInmuebleConFotos(int id)
-{
-    var inmueble = ObtenerPorId(id); 
-    
-    if (inmueble != null)
-    {
-        inmueble.Fotos = ObtenerFotosPorInmuebleId(id);
-    }
-    
-    return inmueble; 
-}
+   
 
     public int Editar(Inmueble inmueble)
     {
@@ -181,43 +108,7 @@ public class RepositorioInmueble : RepositorioBase
         return res;
     }
 
-   public int AgregarFoto(FotoInmueble foto)
-{
-    int res = -1;
-    using (var connection = new MySqlConnection(connectionString))
-    {
-        var sql = @"INSERT INTO foto_inmueble (id_inmueble, url, archivo)
-                    VALUES (@id_inmueble, @url, @archivo)";
-        using (var command = new MySqlCommand(sql, connection))
-        {
-            command.Parameters.Add("@id_inmueble", MySqlDbType.Int32).Value = foto.Id_inmueble;
-            var parametroUrl = command.Parameters.Add("@url", MySqlDbType.VarChar, 255);
-            if (!string.IsNullOrEmpty(foto.Url))
-                {
-                    parametroUrl.Value = foto.Url;
-                }
-                    else
-                {
-                    parametroUrl.Value = DBNull.Value;
-                }
-            var parametroArchivo = command.Parameters.Add("@archivo", MySqlDbType.LongBlob);
-            if (foto.Archivo != null)
-            {
-                parametroArchivo.Value = foto.Archivo;
-            }
-            else
-            {
-                parametroArchivo.Value = DBNull.Value;
-            }
-
-            connection.Open();
-            res = command.ExecuteNonQuery();
-            connection.Close();
-        }
-    }
-    return res;
-}
-
+   
 
     public void EliminarInmueble(Inmueble inmueble)
     {

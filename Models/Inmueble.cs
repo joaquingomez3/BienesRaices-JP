@@ -38,6 +38,8 @@ namespace bienesraices.Models
 
         public string? Descripcion { get; set; }
 
+        public Propietario? Duenio { get; set; }
+
         public List<FotoInmueble> Fotos { get; set; } = new List<FotoInmueble>();
     }
 }

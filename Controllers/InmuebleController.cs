@@ -13,12 +13,15 @@ public class InmuebleController : Controller
     private readonly RepositorioPropietario repoPropietario;
     private readonly RepositorioTipoInmueble repoTipo;
 
+    private readonly RepositorioFotoInmueble repoFoto;
+
     public InmuebleController(IConfiguration configuration)
     {
         repoInmueble = new RepositorioInmueble(configuration);
         repoPropietario = new RepositorioPropietario(configuration);
         repoTipo = new RepositorioTipoInmueble(configuration);
-    }
+        repoFoto = new RepositorioFotoInmueble(configuration);
+        }
 
     // public IActionResult Index()
     // {
@@ -69,10 +72,13 @@ public class InmuebleController : Controller
     public IActionResult Editar(int id)
     {
         var inmueble = repoInmueble.ObtenerPorId(id);
+        TempData["idInmueble"] = id;
         if (inmueble == null)
         {
             return NotFound();
         }
+
+        inmueble.Fotos = repoFoto.ObtenerFotosPorInmuebleId(id);
 
         var propietarios = repoPropietario.ObtenerPropietarios()
             .Select(p => new SelectListItem
@@ -89,36 +95,86 @@ public class InmuebleController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Editar(int id, Inmueble inmueble)
+[ActionName("Editar")]
+public IActionResult EditarPost(int id, Inmueble inmueble, List<IFormFile> fotosLocales, string? urlFoto)
+{
+    if (id != inmueble.Id) return BadRequest();
+
+    if (ModelState.IsValid)
     {
+        // 1) Actualizar datos del inmueble
+        repoInmueble.Editar(inmueble);
 
-        if (id != inmueble.Id) return BadRequest();
-
-        if (ModelState.IsValid)
+        // 2) Guardar fotos subidas (a BD en longblob)
+        if (fotosLocales != null && fotosLocales.Any())
         {
-            repoInmueble.Editar(inmueble);
-            TempData["MensajeExito"] = "Inmueble actualizado correctamente";
-            return RedirectToAction("Index");
+            foreach (var file in fotosLocales)
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using var ms = new MemoryStream();
+                    file.CopyTo(ms);
+                    var bytes = ms.ToArray();
+
+                    repoFoto.AgregarFoto(new FotoInmueble
+                    {
+                        Id_inmueble = inmueble.Id,
+                        Archivo = bytes,   // 🔹 guardamos en longblob
+                        Url = null         // 🔹 sin URL
+                    });
+                }
+            }
         }
 
-        var propietarios = repoPropietario.ObtenerPropietarios()
-            .Select(p => new SelectListItem
+        // 3) (opcional) si vino una URL, la guardamos como URL (sin blob)
+        if (!string.IsNullOrWhiteSpace(urlFoto))
+        {
+            repoFoto.AgregarFoto(new FotoInmueble
             {
-                Value = p.Id.ToString(),
-                Text = $"{p.Dni} - {p.Apellido} {p.Nombre}"
-            }).ToList();
+                Id_inmueble = inmueble.Id,
+                Url = urlFoto,
+                Archivo = null
+            });
+        }
 
-        ViewBag.Propietarios = propietarios;
-
-        ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
-        return View(inmueble);
+        TempData["MensajeExito"] = "Inmueble actualizado correctamente";
+        return RedirectToAction("Index");
     }
 
+    // si hay errores, recargamos combos y devolvemos la vista
+    var propietarios = repoPropietario.ObtenerPropietarios()
+        .Select(p => new SelectListItem
+        {
+            Value = p.Id.ToString(),
+            Text = $"{p.Dni} - {p.Apellido} {p.Nombre}"
+        }).ToList();
+
+    ViewBag.Propietarios = propietarios;
+    ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
+
+    return View(inmueble);
+}
     [HttpGet]
     public IActionResult Eliminar()
     {
         return View();
     }
+
+    public IActionResult VerFoto(int id)
+    {
+        var foto = repoFoto.ObtenerFotoPorId(id);
+        if (foto?.Archivo == null) return NotFound();
+        return File(foto.Archivo, "image/jpeg");
+    }
+
+    [HttpPost]
+    public IActionResult EliminarFoto(int id)
+    {
+        repoFoto.EliminarFoto(id);
+        return RedirectToAction("Editar", new { id = TempData["IdInmueble"] });
+    }
+
+    
 
     [HttpPost]
     [ValidateAntiForgeryToken]

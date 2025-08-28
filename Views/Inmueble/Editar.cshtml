@@ -39,43 +39,53 @@
                 <input asp-for="Precio" type="number" step="0.01" class="form-control" />
             </div>
 
-            <div class="col-md-3">
-                <label asp-for="Estado" class="form-label fw-bold"></label>
-                <select asp-for="Estado" class="form-select">
-                    <option value="DISPONIBLE">Disponible</option>
-                    <option value="SUSPENDIDO">Suspendido</option>
-                    <option value="OCUPADO">Ocupado</option>
-                </select>
-            </div>
+                    <div class="col-md-3">
+                        <label asp-for="Estado" class="form-label fw-bold"></label>
+                        <select asp-for="Estado" class="form-select">
+                            <option value="DISPONIBLE">Disponible</option>
+                            <option value="SUSPENDIDO">Suspendido</option>
+                            <option value="OCUPADO">Ocupado</option>
+                        </select>
+                    </div>
 
-            <div class="col-md-6">
-                <label asp-for="Id_Propietario" class="form-label fw-bold">Propietario</label>
-                <select asp-for="Id_Propietario" class="form-select"
+                    <div class="col-md-6">
+            <label asp-for="Id_Propietario" class="form-label fw-bold">Propietario</label>
+            <select asp-for="Id_Propietario" class="form-select"
                     asp-items="@(ViewBag.Propietarios as IEnumerable<SelectListItem>)">
-                    <option value="">-- Seleccione un propietario --</option>
-                </select>
-            </div>
+                <option value="">-- Seleccione un propietario --</option>
+            </select>
+        </div>
 
-            <div class="col-md-6">
-                <label asp-for="Id_Tipo" class="form-label fw-bold">Tipo de Inmueble</label>
-                <select asp-for="Id_Tipo" class="form-select"
-                    asp-items="@(new SelectList(ViewBag.Tipos, "Id", "Nombre"))">
-                    <option value="">-- Seleccione un tipo --</option>
-                </select>
-            </div>
+        <div class="col-md-6">
+            <label asp-for="Id_Tipo" class="form-label fw-bold">Tipo de Inmueble</label>
+            <select asp-for="Id_Tipo" class="form-select"
+                    asp-items="@(new SelectList(ViewBag.Tipos, "Id", "Nombre", Model.Id_Tipo))">
+                <option value="">-- Seleccione un tipo --</option>
+            </select>
+        </div>
 
             <div class="col-12 mt-4">
                 <h4>Galería de Fotos</h4>
                 <div class="d-flex flex-wrap gap-2 mb-3">
-                    @if (Model.Fotos != null && Model.Fotos.Any())
-                    {
-                        @foreach (var foto in Model.Fotos)
-                        {
-                            <div>
-                                <img src="@foto.Url" alt="Foto del inmueble" class="img-thumbnail" style="width: 150px;" />
-                            </div>
-                        }
-                    }
+                    @foreach (var foto in Model.Fotos)
+{
+    var src = !string.IsNullOrEmpty(foto.Url)
+        ? foto.Url
+        : Url.Action("VerFoto", "Inmueble", new { id = foto.Id_foto });
+
+    <div class="position-relative d-inline-block me-2 mb-2">
+        <img src="@src" class="img-thumbnail" style="width: 150px;" />
+
+        <button type="button" class="btn btn-sm btn-danger" title="Eliminar foto"
+        onclick="eliminarFoto(@foto.Id_foto)">
+    &times;
+</button>
+
+
+    </div>
+}
+
+
                 </div>
             </div>
 
@@ -115,5 +125,34 @@
                 });
             </text>
         }
+
+       function eliminarFoto(id) {
+    Swal.fire({
+        title: '¿Eliminar esta foto?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = "/Inmueble/EliminarFoto";
+
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "id";
+            input.value = id;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
     </script>
 }
