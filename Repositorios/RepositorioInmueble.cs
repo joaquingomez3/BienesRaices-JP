@@ -236,6 +236,7 @@ public class RepositorioInmueble : RepositorioBase
         return lista;
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     public async Task<List<Inmueble>> InmueblesFiltrados(int page, int pageSize, string? propietario, string? estado)
     {
         var lista = new List<Inmueble>();
@@ -307,6 +308,8 @@ public class RepositorioInmueble : RepositorioBase
     }
 
 =======
+=======
+>>>>>>> Stashed changes
     
     public List<Inmueble> ObtenerInmueblesDisponibles()
     {
@@ -342,5 +345,8 @@ public class RepositorioInmueble : RepositorioBase
             }
         }
     }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
