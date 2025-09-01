@@ -1,0 +1,61 @@
+@model IEnumerable<bienesraices.Models.Pago>
+    
+@{
+    ViewData["Title"] = "Pagos";
+}
+<div class="container mb-5">
+<h2 class="mb-4">Registro de pagos</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>N° Pago</th>
+            <th>Fecha</th>
+            <th>Detalle</th>
+            <th>Importe</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if(Model != null && Model.Any())
+        {
+            @foreach (var pago in Model)
+             {
+            <tr>
+                <td>@pago.Numero_pago</td>
+                <td>@pago.Fecha_pago.ToString("dd/MM/yyyy")</td>
+                <td>@pago.Detalle</td>
+                <td>@pago.Importe.ToString("C")</td>
+                <td>@pago.Estado</td>
+                <td>
+                    <a asp-action="VerPago" asp-route-id="@pago.Id" class="btn btn-info btn-sm">
+                        <i class="fas fa-eye"></i> Ver
+                    </a>
+                    <a asp-action="EditarPago" asp-route-id="@pago.Id" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a asp-action="AnularPago" asp-route-id="@pago.Id" class="btn btn-danger btn-sm">
+                        <i class="fas fa-ban"></i> Anular
+                    </a>
+                </td>
+            </tr>
+            }
+        }
+        else
+            {
+           
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    <i class="bi bi-info-circle"></i> No hay pagos registrados para este contrato.
+                </td>
+            </tr>
+        }
+        
+    </tbody>
+</table>
+
+<a asp-action="CrearPago" asp-route-idContrato="@ViewBag.IdContrato" class="btn btn-success">
+    <i class="fas fa-plus"></i> Nuevo Pago
+</a>
+</div>

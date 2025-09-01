@@ -195,4 +195,35 @@ public class RepositorioInquilino : RepositorioBase
         return lista;
     }
 
+    public List<Inquilino> ObtenerInquilinosActivos()
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = "SELECT * FROM inquilino WHERE estado = 1";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                connection.Open();
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    var inquilinos = new List<Inquilino>();
+                    while (reader.Read())
+                    {
+                        inquilinos.Add(new Inquilino
+                        {
+                            Id = reader.GetInt32("id"),
+                            Dni = reader.GetString("dni"),
+                            Nombre_completo = reader.GetString("nombre_completo"),
+                            Telefono = reader.GetString("telefono"),
+                            Email = reader.GetString("email"),
+                            Direccion = reader.GetString("direccion"),
+                            Estado = reader.GetInt32("estado")
+                        });
+                    }
+                    return inquilinos;
+                }
+            }
+        }
+    }
+
 }
