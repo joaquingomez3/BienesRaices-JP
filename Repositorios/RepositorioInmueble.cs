@@ -235,6 +235,7 @@ public class RepositorioInmueble : RepositorioBase
         }
         return lista;
     }
+<<<<<<< Updated upstream
     public async Task<List<Inmueble>> InmueblesFiltrados(int page, int pageSize, string? propietario, string? estado)
     {
         var lista = new List<Inmueble>();
@@ -305,4 +306,41 @@ public class RepositorioInmueble : RepositorioBase
         return lista;
     }
 
+=======
+    
+    public List<Inmueble> ObtenerInmueblesDisponibles()
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = "SELECT * FROM Inmueble WHERE estado = 'DISPONIBLE'";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                connection.Open();
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    var inmuebles = new List<Inmueble>();
+                    while (reader.Read())
+                    {
+                        inmuebles.Add(new Inmueble
+                        {
+                            Id = reader.GetInt32("id"),
+                            Direccion = reader.GetString("direccion"),
+                            Uso = reader.GetString("uso"),
+                            Ambientes = reader.GetInt32("ambientes"),
+                            Coordenadas = reader.GetString("coordenadas"),
+                            Precio = reader.GetDecimal("precio"),
+                            Estado = reader.GetString("estado"),
+                            Id_Propietario = reader.GetInt32("id_propietario"),
+                            Id_Tipo = reader.GetInt32("id_tipo")
+                        });
+                    }
+                    return inmuebles;      
+                }
+                    
+                    
+            }
+        }
+    }
+>>>>>>> Stashed changes
 }
