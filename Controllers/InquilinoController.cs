@@ -15,11 +15,7 @@ public class InquilinoController : Controller
         _logger = logger;
         repoInquilino = new RepositorioInquilino(configuration);
     }
-    /*public IActionResult Index()
-    {
-        var lista = repoInquilino.ObtenerInquilinos();
-        return View(lista);
-    }*/
+    
 
     [HttpGet]
     public async Task<IActionResult> Index(int page, int pageSize = 5)
@@ -57,7 +53,7 @@ public class InquilinoController : Controller
     [HttpGet]
     public IActionResult Editar(int id)
     {
-        var inquilino = repoInquilino.ObtenerPropietarioPorId(id);
+        var inquilino = repoInquilino.ObtenerInquilinoPorId(id);
 
         if (inquilino == null)
         {

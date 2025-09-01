@@ -55,9 +55,15 @@ public class UsuarioController : Controller
             {
 
                 new Claim(ClaimTypes.Name, usuarioEncontrado.Nombre_usuario+ " "+usuarioEncontrado.Apellido_usuario),
+<<<<<<< Updated upstream
                 new Claim(ClaimTypes.Role, usuarioEncontrado.RolUsuario.ToLower()), // Rol en minúsculas
                 new Claim("Id", usuarioEncontrado.Id.ToString())
             };
+=======
+                new Claim(ClaimTypes.Role, usuarioEncontrado.RolUsuario.ToLower()),
+                new Claim(ClaimTypes.NameIdentifier, usuarioEncontrado.Id.ToString())
+                };
+>>>>>>> Stashed changes
                 var claimsIdentity = new ClaimsIdentity(
                     claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(

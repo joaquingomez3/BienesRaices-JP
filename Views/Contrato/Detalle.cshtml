@@ -1,0 +1,48 @@
+@model bienesraices.Models.Contrato
+@{
+    ViewData["Title"] = "Contrato de Locación";
+}
+
+<div class="container mt-4 mb-4">
+    <h2 class="text-center mb-4">Contrato de Locación de Inmueble</h2>
+    <hr />
+
+    <div class="text-justify">
+        <p>Entre el LOCADOR, identificado como <strong>@Model.Creador</strong>, y el LOCATARIO <strong>@Model.InquilinoContrato</strong>, se celebra el presente contrato de locación conforme a las siguientes cláusulas:</p>
+
+        <h5>Primera - Objeto</h5>
+        <p>El LOCADOR da en locación al LOCATARIO el inmueble <strong>@Html.Raw(Model.InmuebleContrato)</strong>, destinado a uso <strong>@Model.InmuebleUso</strong>.</p>
+    
+        <h5>Segunda - Plazo</h5>
+        <p>El plazo de la locación será desde el <strong>@Model.Fecha_inicio.ToShortDateString()</strong> hasta el <strong>@Model.Fecha_fin.ToShortDateString()</strong>.</p>
+
+        <h5>Tercera - Precio</h5>
+        <p>El precio mensual de la locación será de <strong>$@Model.Monto_mensual</strong>, pagadero por adelantado dentro de los primeros cinco días de cada mes.</p>
+        
+
+        @if (Model.Fecha_terminacion != null)
+        {
+            <h5>Cuarta - Rescisión Anticipada</h5>
+            <p>El contrato fue rescindido el <strong>@Model.Fecha_terminacion?.ToShortDateString()</strong>. En virtud de dicha rescisión, se establece una multa de <strong>$1000</strong>.</p>
+        }
+
+       
+
+        
+        <p class="mt-4">En prueba de conformidad, ambas partes firman el presente contrato en la fecha correspondiente al inicio de la locación.</p>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-6 text-center">
+            <p>__________________________</p>
+            <p>LOCADOR: @Model.Creador</p>
+        </div>
+        <div class="col-md-6 text-center">
+            <p>__________________________</p>
+            <p>LOCATARIO: @Model.InquilinoContrato</p>
+        </div>
+    </div>
+
+    <hr />
+   
+</div>

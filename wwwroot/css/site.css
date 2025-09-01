@@ -34,3 +34,15 @@ body {
     background-color: #bb4900;
     box-shadow: 0px 4px 6px rgba(0,0,0,0.3), 0px 8px 16px rgba(0,0,0,0.2);
 }
+
+.no-caret::after {
+    display: none !important;
+}
+.bg-primary {
+    background-color: #bb4900 !important;
+}
+
+.btn-success {
+    background-color: #47220d !important;
+}
+    

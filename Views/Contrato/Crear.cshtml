@@ -1,0 +1,122 @@
+@model bienesraices.Models.Contrato
+
+
+@{
+    ViewData["Title"] = "Crear pago";
+}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">➕ Crear Contrato</h2>
+    <form asp-action="Crear" method="post" class="shadow-lg p-4 rounded bg-light">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+
+            <!-- Inquilino -->
+            <div class="col-md-6">
+                <label asp-for="Id_inquilino" class="form-label fw-bold"></label>
+                <select asp-for="Id_inquilino" class="form-select" asp-items="ViewBag.Inquilinos">
+                    <option value="">Seleccionar inquilino...</option>
+                </select>
+                <span asp-validation-for="Id_inquilino" class="text-danger"></span>
+            </div>
+
+            <!-- Inmueble -->
+            <div class="col-md-6">
+                <label asp-for="Id_inmueble" class="form-label fw-bold"></label>
+                <select asp-for="Id_inmueble" id="inmuebleSelect" class="form-select" asp-items="ViewBag.Inmuebles">
+                    <option value="">Seleccionar inmueble...</option>
+                </select>
+                <span asp-validation-for="Id_inmueble" class="text-danger"></span>
+            </div>
+
+            <!-- Fecha de Inicio -->
+            <div class="col-md-6">
+                <label asp-for="Fecha_inicio" class="form-label fw-bold"></label>
+                <input asp-for="Fecha_inicio" type="date" class="form-control" />
+                <span asp-validation-for="Fecha_inicio" class="text-danger"></span>
+            </div>
+
+            <!-- Fecha de Fin -->
+            <div class="col-md-6">
+                <label asp-for="Fecha_fin" class="form-label fw-bold"></label>
+                <input asp-for="Fecha_fin" type="date" class="form-control" />
+                <span asp-validation-for="Fecha_fin" class="text-danger"></span>
+            </div>
+
+            <!-- Monto Mensual -->
+            <div class="col-md-6">
+                <label asp-for="Monto_mensual" class="form-label fw-bold"></label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input id="montoMensualDisplay" type="text" class="form-control" readonly />
+                </div>
+            </div>
+
+            <input asp-for="Monto_mensual" type="hidden" id="montoMensualReal" />
+
+
+
+            <!-- Estado (oculto) -->
+            <input asp-for="Estado" type="hidden" value="Vigente" />
+
+            <input asp-for="Id_usuario_creador" type="hidden" value="@ViewBag.IdUsuarioCreador" />
+
+
+
+            <!-- Botones -->
+            <div class="mt-4 d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle me-1"></i> Crear
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const inmuebleSelect = document.getElementById("inmuebleSelect");
+        const montoMensualDisplay = document.getElementById("montoMensualDisplay");
+        const montoMensualReal = document.getElementById("montoMensualReal");
+
+        inmuebleSelect.addEventListener('change', function () {
+            const inmuebleId = this.value;
+
+            if (inmuebleId) {
+                fetch(`/Contrato/ObtenerPrecioInmueble?id=${inmuebleId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener el precio');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const precioFormateado = new Intl.NumberFormat('es-AR', {
+                            style: 'currency',
+                            currency: 'ARS'
+                        }).format(data.precio);
+
+                        montoMensualDisplay.value = precioFormateado;
+                        montoMensualReal.value = data.precio;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        montoMensualDisplay.value = '';
+                        montoMensualReal.value = '';
+                        alert('No se pudo obtener el precio del inmueble');
+                    });
+            } else {
+                montoMensualDisplay.value = '';
+                montoMensualReal.value = '';
+            }
+        });
+    });
+</script>
+
+
+}

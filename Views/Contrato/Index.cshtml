@@ -1,0 +1,99 @@
+@model IEnumerable<bienesraices.Models.Contrato>
+
+@{
+    ViewData["Title"] = "Contratos";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Contratos</h2>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+
+    <a asp-action="Crear" class="btn btn-success mb-3">
+        <i class="bi bi-person-plus"></i> Nuevo Contrato
+    </a>
+
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Inmueble</th>
+                <th>Uso</th>
+                <th>Inquilino</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Monto Mensual</th>
+                <th>Creador</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var contrato in Model)
+            {
+                <tr>
+                    <td>@Html.Raw(@contrato.InmuebleContrato)</td>
+                    <td>(@contrato.InmuebleUso)</td>
+                    <td>@contrato.InquilinoContrato</td>
+                    <td>@contrato.Fecha_inicio</td>
+                    <td>@contrato.Fecha_fin</td>
+                    <td>@contrato.Monto_mensual</td>
+                    <td>@contrato.Creador</td>
+                    <td>@contrato.Estado</td>
+                    <td>
+                        <div class="dropdown text-center">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle no-caret" type="button"
+                                id="dropdownMenuButton-@contrato.Id" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@contrato.Id">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Contrato" asp-action="Detalle"
+                                        asp-route-id="@contrato.Id" target="_blank">
+                                        <i class="fa fa-eye me-2"></i> Ver Detalle
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Pago" asp-action="RegistroPagos"
+                                        asp-route-id="@contrato.Id">
+                                        <i class="fa fa-dollar-sign me-2"></i> Ver Pagos
+                                    </a>
+                                </li>
+                                @if (contrato.Estado == "Vigente") // Ajustá según tu modelo
+                                {
+                                    <li>
+                                        <a class="dropdown-item text-danger" asp-controller="Contrato" asp-action="Rescindir"
+                                            asp-route-id="@contrato.Id">
+                                            <i class="fa fa-file-excel me-2"></i> Rescindir Contrato
+                                        </a>
+                                    </li>
+                                }
+                               
+                                    <li>
+                                        <a class="dropdown-item text-warning" asp-controller="Pago" asp-action="Deuda"
+                                            asp-route-id="@contrato.Id">
+                                            <i class="fa fa-exclamation-triangle me-2"></i> Ver Deuda
+                                        </a>
+                                    </li>
+                               
+                            </ul>
+                        </div>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
