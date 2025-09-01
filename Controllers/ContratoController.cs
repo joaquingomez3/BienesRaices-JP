@@ -79,6 +79,7 @@ public class ContratoController : Controller
             return RedirectToAction("Index");
         }
 
+<<<<<<< HEAD
         if (!ModelState.IsValid)
         {
             foreach (var entry in ModelState)
@@ -101,6 +102,13 @@ public class ContratoController : Controller
 
 
 
+=======
+        ViewBag.Inquilinos = new SelectList(repoInquilino.ObtenerInquilinosActivos(), "Id", "Nombre_completo");
+        ViewBag.Inmuebles = new SelectList(repoInmueble.ObtenerInmueblesDisponibles(), "Id", "Direccion");
+
+        return View(contrato);
+    }
+>>>>>>> a50fee9154a08485367f19fada2fb64eecd7a61b
     [HttpGet]
     public IActionResult ObtenerPrecioInmueble(int id)
     {
@@ -109,7 +117,11 @@ public class ContratoController : Controller
         {
             return NotFound();
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> a50fee9154a08485367f19fada2fb64eecd7a61b
         return Ok(new { precio = inmueble.Precio });
     }
 

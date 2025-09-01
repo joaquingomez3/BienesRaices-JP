@@ -235,6 +235,8 @@ public class RepositorioInmueble : RepositorioBase
         }
         return lista;
     }
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     public async Task<List<Inmueble>> InmueblesFiltrados(int page, int pageSize, string? propietario, string? estado)
     {
         var lista = new List<Inmueble>();
@@ -305,6 +307,13 @@ public class RepositorioInmueble : RepositorioBase
         return lista;
     }
 
+<<<<<<< HEAD
+=======
+=======
+=======
+>>>>>>> Stashed changes
+    
+>>>>>>> a50fee9154a08485367f19fada2fb64eecd7a61b
     public List<Inmueble> ObtenerInmueblesDisponibles()
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -332,6 +341,7 @@ public class RepositorioInmueble : RepositorioBase
                             Id_Tipo = reader.GetInt32("id_tipo")
                         });
                     }
+<<<<<<< HEAD
                     return inmuebles;
                 }
 
@@ -340,4 +350,17 @@ public class RepositorioInmueble : RepositorioBase
         }
     }
 
+=======
+                    return inmuebles;      
+                }
+                    
+                    
+            }
+        }
+    }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+>>>>>>> a50fee9154a08485367f19fada2fb64eecd7a61b
 }
