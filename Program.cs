@@ -23,8 +23,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Registrar autorización con roles y políticas
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Administrador", policy => policy.RequireRole("administrador"));
-    //options.AddPolicy("Empleado", policy => policy.RequireRole("empleado"));
+    options.AddPolicy("Admin", policy => policy.RequireRole("admin"));
+    options.AddPolicy("empleado", policy => policy.RequireRole("empleado"));
 });
 
 var app = builder.Build(); //construye la aplicacion
@@ -66,7 +66,7 @@ using (var scope = app.Services.CreateScope())
             Nombre_usuario = "Juan",
             Apellido_usuario = "Pérez",
             Email = emailAdmin,
-            Id_tipo_usuario = 1, 
+            Id_tipo_usuario = 1,
             Activo = true,
             Foto = null
         };

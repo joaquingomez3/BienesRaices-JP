@@ -48,7 +48,7 @@
                         <a asp-action="Editar" asp-route-id="@usuario.Id" class="btn btn-sm btn-warning me-1">
                             <i class="bi bi-pencil-square"></i>
                         </a>
-                        <form asp-action="Eliminar" asp-route-id="@usuario.Id" method="post" class="d-inline">
+                        <form asp-action="Eliminar" asp-route-id="@usuario.Id" method="post" class="d-inline form-eliminar">
                             <button type="submit" class="btn btn-sm btn-danger">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -74,38 +74,40 @@
 @section Scripts {
     <script>
 
-        // Confirmación con SweetAlert2
-        $('.form-eliminar').on('submit', function (e) {
-            e.preventDefault();
-            const form = this;
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "Esta acción eliminará un usuario.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#bb4900',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
+        $(function () {
+            $('.form-eliminar').on('submit', function (e) {
+                e.preventDefault(); // Evita el envío automático
 
-        // Alerta de éxito si viene desde TempData
-        @if (TempData["MensajeExito"] != null)
-            {
-                <text>
-                    Swal.fire({
-                        icon: 'success',
-                    title: '¡Éxito!',
-                    text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
-                    confirmButtonColor: '#bb4900'
-                                                                                            });
-                </text>
-        }
-                                            });
+                const form = this;
+
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará un propietario.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#bb4900',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Envía el formulario si el usuario confirma
+                    }
+                });
+            });
+
+            // Alerta de éxito si viene desde TempData
+            @if (TempData["MensajeExito"] != null)
+                {
+                    <text>
+                        Swal.fire({
+                            icon: 'success',
+                        title: '¡Éxito!',
+                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
+                        confirmButtonColor: '#bb4900'
+                                                                                                                            });
+                    </text>
+            }
+            });
     </script>
 }

@@ -1,5 +1,6 @@
 using MySql.Data.MySqlClient;
 using bienesraices.Models;
+using System.Data;
 namespace bienesraices.Repositorios;
 
 public class RepositorioUsuario : RepositorioBase
@@ -39,7 +40,7 @@ public class RepositorioUsuario : RepositorioBase
                         RolUsuario = reader.GetString("rol_usuario"),
                         Activo = reader.GetBoolean("activo"),
                         Foto = reader.IsDBNull(reader.GetOrdinal("foto")) ? null : reader["foto"].ToString(),
-                       // ← nuevo campo
+                        // ← nuevo campo
 
 
                     });
@@ -52,40 +53,47 @@ public class RepositorioUsuario : RepositorioBase
     }
 
     public int Alta(Usuario usuario)
-{
-    int res = -1;
-    using (MySqlConnection connection = new MySqlConnection(connectionString))
     {
+        int res = -1;
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
             string sql = @"INSERT INTO Usuario 
                        (Nombre_usuario, Apellido_usuario, Email, Password, Id_tipo_usuario, Activo, Foto)
                        VALUES 
                        (@nombre, @apellido, @email, @password, @idTipo, @activo, @foto);
                        SELECT LAST_INSERT_ID()";
 
-        using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-        {
-            cmd.Parameters.AddWithValue("@nombre", usuario.Nombre_usuario);
-            cmd.Parameters.AddWithValue("@apellido", usuario.Apellido_usuario);
-            cmd.Parameters.AddWithValue("@email", usuario.Email);
-            cmd.Parameters.AddWithValue("@password", usuario.Password);
-            cmd.Parameters.AddWithValue("@idTipo", usuario.Id_tipo_usuario);
-            cmd.Parameters.AddWithValue("@activo", usuario.Activo);
-            cmd.Parameters.AddWithValue("@foto", (object?)usuario.Foto ?? DBNull.Value);
+            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
+            {
+                cmd.Parameters.AddWithValue("@nombre", usuario.Nombre_usuario);
+                cmd.Parameters.AddWithValue("@apellido", usuario.Apellido_usuario);
+                cmd.Parameters.AddWithValue("@email", usuario.Email);
+                cmd.Parameters.AddWithValue("@password", usuario.Password);
+                cmd.Parameters.AddWithValue("@idTipo", usuario.Id_tipo_usuario);
+                cmd.Parameters.AddWithValue("@activo", usuario.Activo);
+                cmd.Parameters.AddWithValue("@foto", (object?)usuario.Foto ?? DBNull.Value);
 
-            connection.Open();
-            res = Convert.ToInt32(cmd.ExecuteScalar());
-            usuario.Id = res;
+                connection.Open();
+                res = Convert.ToInt32(cmd.ExecuteScalar());
+                usuario.Id = res;
+            }
         }
+        return res;
     }
-    return res;
-}
 
     public void ActualizarUsuario(Usuario usuario)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = "UPDATE usuario SET nombre_usuario=@nombre_usuario, apellido_usuario=@apellido_usuario, email=@email, password=@password, id_tipo_usuario=@id_tipo_usuario, activo=@activo WHERE id=@id";
-
+            var query = @"UPDATE usuario 
+                        SET nombre_usuario=@nombre_usuario, 
+                            apellido_usuario=@apellido_usuario, 
+                            email=@email, 
+                            password=@password, 
+                            id_tipo_usuario=@id_tipo_usuario, 
+                            activo=@activo, 
+                            foto=@foto 
+                        WHERE id=@id";
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@nombre_usuario", usuario.Nombre_usuario);
@@ -95,7 +103,7 @@ public class RepositorioUsuario : RepositorioBase
                 command.Parameters.AddWithValue("@id_tipo_usuario", usuario.Id_tipo_usuario);
                 command.Parameters.AddWithValue("@activo", usuario.Activo);
                 command.Parameters.AddWithValue("@id", usuario.Id);
-
+                command.Parameters.AddWithValue("@foto", (object?)usuario.Foto ?? DBNull.Value);
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -107,7 +115,7 @@ public class RepositorioUsuario : RepositorioBase
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = "DELETE FROM usuario WHERE id=@id";
+            var query = "UPDATE usuario SET activo = 0 WHERE id = @id";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
@@ -153,12 +161,12 @@ public class RepositorioUsuario : RepositorioBase
     }
 
     public Usuario? ObtenerUsuarioPorEmail(string email)
-{
-    Usuario? usuario = null;
-
-    using (MySqlConnection connection = new MySqlConnection(connectionString))
     {
-        string sql = @"SELECT 
+        Usuario? usuario = null;
+
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            string sql = @"SELECT 
                    u.Id, 
                    u.Nombre_usuario, 
                    u.Apellido_usuario, 
@@ -172,34 +180,107 @@ public class RepositorioUsuario : RepositorioBase
                JOIN tipo_usuario t ON t.id_tipo_usuario = u.Id_tipo_usuario
                WHERE u.Email = @email";
 
-        using (MySqlCommand cmd = new MySqlCommand(sql, connection))
-        {
-            cmd.Parameters.AddWithValue("@email", email);
-            connection.Open();
-
-            using (var reader = cmd.ExecuteReader())
+            using (MySqlCommand cmd = new MySqlCommand(sql, connection))
             {
-                if (reader.Read())
+                cmd.Parameters.AddWithValue("@email", email);
+                connection.Open();
+
+                using (var reader = cmd.ExecuteReader())
                 {
-                    usuario = new Usuario
+                    if (reader.Read())
                     {
-                        Id = reader.GetInt32("Id"),
-                        Nombre_usuario = reader.GetString("Nombre_usuario"),
-                        Apellido_usuario = reader.GetString("Apellido_usuario"),
-                        Email = reader.GetString("Email"),
-                        Password = reader.GetString("Password"),
-                        Id_tipo_usuario = reader.GetInt32("Id_tipo_usuario"),
-                        Activo = reader.GetBoolean("Activo"),
-                        Foto = reader.IsDBNull(reader.GetOrdinal("Foto")) ? null : reader.GetString("Foto"),
-                        RolUsuario = reader.GetString("rol_usuario") 
-                    };
+                        usuario = new Usuario
+                        {
+                            Id = reader.GetInt32("Id"),
+                            Nombre_usuario = reader.GetString("Nombre_usuario"),
+                            Apellido_usuario = reader.GetString("Apellido_usuario"),
+                            Email = reader.GetString("Email"),
+                            Password = reader.GetString("Password"),
+                            Id_tipo_usuario = reader.GetInt32("Id_tipo_usuario"),
+                            Activo = reader.GetBoolean("Activo"),
+                            Foto = reader.IsDBNull(reader.GetOrdinal("Foto")) ? null : reader.GetString("Foto"),
+                            RolUsuario = reader.GetString("rol_usuario")
+                        };
+                    }
                 }
+            }
+        }
+
+        return usuario;
+    }
+
+    public async Task<int> ContarUsuarios()
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            var query = "SELECT COUNT(*) FROM usuario";
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                var result = await command.ExecuteScalarAsync();
+                return Convert.ToInt32(result);
             }
         }
     }
 
-    return usuario;
-}
-   
+    public async Task<List<Usuario>> UsuariosPaginados(int page, int pageSize)
+    {
+        List<Usuario> usuarios = new List<Usuario>();
+
+
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            var query = @"SELECT 
+                                u.id, 
+                                u.nombre_usuario, 
+                                u.apellido_usuario, 
+                                u.email, 
+                                u.password, 
+                                u.id_tipo_usuario, 
+                                u.activo, 
+                                u.foto,
+                                t.rol_usuario
+                            FROM 
+                                usuario u
+                            INNER JOIN 
+                                tipo_usuario t ON u.id_tipo_usuario = t.id_tipo_usuario
+                            WHERE 
+                                u.activo = 1
+                            LIMIT 
+                                @pageSize OFFSET @offset;";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@PageSize", pageSize);
+                command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+
+                    while (await reader.ReadAsync())
+                    {
+                        usuarios.Add(new Usuario
+                        {
+                            Id = reader.GetInt32("id"),
+                            Nombre_usuario = reader.GetString("nombre_usuario"),
+                            Apellido_usuario = reader.GetString("apellido_usuario"),
+                            Email = reader.GetString("email"),
+                            Password = reader.GetString("password"),
+                            Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
+                            RolUsuario = reader.GetString("rol_usuario"),
+                            Activo = reader.GetBoolean("activo"),
+                            Foto = reader.IsDBNull(reader.GetOrdinal("foto")) ? null : reader["foto"].ToString(),
+                        });
+
+                    }
+                }
+            }
+        }
+        return usuarios;
+    }
+
 
 }

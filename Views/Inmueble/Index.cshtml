@@ -2,10 +2,22 @@
 
 @{
     ViewData["Title"] = "Listado de Inmuebles";
+    var filtroEstado = ViewBag.FiltroEstado as string ?? "";
+    var filtroPropietario = ViewBag.FiltroPropietario as string ?? "";
+    var paginaActual = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPaginas = (int)(ViewBag.TotalPages ?? 1);
+}
+<style>
+    .carousel-img {
+    width: 100%;        /* ocupa todo el ancho del contenedor */
+    height: 400px;      /* altura fija, podés ajustar */
+    object-fit: cover;  /* recorta la imagen manteniendo proporciones */
 }
 
+</style>
 <div class="container mt-5">
     <h2 class="mb-4">📋 Inmueble</h2>
+
     <a asp-controller="Home" asp-action="Index" class="btn btn-secondary mb-3">
         <i class="bi bi-arrow-left"></i> Volver
     </a>
@@ -14,6 +26,56 @@
         <i class="bi bi-person-plus"></i> Nuevo Inmueble
     </a>
 
+    <!-- Filtros -->
+    <form method="get" asp-action="Index" class="row g-3 mb-4">
+        <div class="col-md-5">
+            <input type="text"
+                   name="propietario"
+                   value="@filtroPropietario"
+                   class="form-control"
+                   placeholder="Buscar por propietario (nombre o apellido)..." />
+        </div>
+
+        <div class="col-md-4">
+            <select name="estado" class="form-select">
+                <option value="">-- Todos los estados --</option>
+
+                @* Usamos if/else para evitar C# directamente en atributos *@
+                @if (filtroEstado == "Disponible")
+                {
+                    <option value="Disponible" selected>Disponible</option>
+                }
+                else
+                {
+                    <option value="Disponible">Disponible</option>
+                }
+
+                @if (filtroEstado == "Ocupado")
+                {
+                    <option value="Ocupado" selected>Ocupado</option>
+                }
+                else
+                {
+                    <option value="Ocupado">Ocupado</option>
+                }
+
+                @if (filtroEstado == "Reservado")
+                {
+                    <option value="Reservado" selected>Reservado</option>
+                }
+                else
+                {
+                    <option value="Reservado">Reservado</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3 d-grid">
+            <button type="submit" class="btn" style="background-color: #bb4900; color: white;">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+        </div>
+    </form>
 
     <table id="tablaInmueble" class="table table-hover table-striped align-middle">
         <thead class="table-dark">
@@ -25,95 +87,120 @@
                 <th class="text-end">Precio</th>
                 <th class="text-center">Propietario</th>
                 <th class="text-center">Tipo</th>
+                <th class="text-center">Estado</th>
                 <th class="text-center">Acciones</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var inmueble in Model)
+            @if (Model != null && Model.Any())
+            {
+                foreach (var inmueble in Model)
+                {
+                    <tr>
+                        <td>@inmueble.Direccion</td>
+                        <td class="text-center">@inmueble.Uso</td>
+                        <td class="text-center">@inmueble.Ambientes</td>
+                        <td class="text-center">@inmueble.Coordenadas</td>
+                        <td class="text-end">$ @inmueble.Precio</td>
+                        <td>@inmueble.PropietarioNombre</td>
+                        <td class="text-center">@inmueble.TipoInmuebleNombre</td>
+                        <td class="text-center">@inmueble.Estado</td>
+                        <td class="text-center">
+                            <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-sm btn-warning me-1">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form asp-action="Eliminar" asp-route-id="@inmueble.Id" method="post" class="d-inline form-eliminar">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-info ms-1" data-bs-toggle="modal" data-bs-target="#modalInmueble-@inmueble.Id">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Modal con carrusel -->
+                    <div class="modal fade" id="modalInmueble-@inmueble.Id" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Imágenes de @inmueble.Direccion</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if (inmueble.Fotos != null && inmueble.Fotos.Any())
+                                    {
+                                        <div id="carousel-@inmueble.Id" class="carousel slide" data-bs-ride="carousel">
+                                            <div class="carousel-inner">
+                                                @for (int i = 0; i < inmueble.Fotos.Count; i++)
+                                                {
+                                                    var foto = inmueble.Fotos[i];
+                                                    var src = !string.IsNullOrEmpty(foto.Url)
+                                                        ? foto.Url
+                                                        : Url.Action("VerFoto", "Inmueble", new { id = foto.Id_foto });
+
+                                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                                        <img src="@src" class="d-block w-100 carousel-img rounded" alt="Foto inmueble">
+                                                    </div>
+                                                }
+                                            </div>
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@inmueble.Id" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon"></span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-@inmueble.Id" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon"></span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-center text-muted">No hay imágenes disponibles para este inmueble.</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
             {
                 <tr>
-
-                    <td>@inmueble.Direccion</td>
-                    <td class="text-center">@inmueble.Uso</td>
-                    <td class="text-center">@inmueble.Ambientes</td>
-                    <td class="text-center">@inmueble.Coordenadas</td>
-                    <td class="text-end">$ @inmueble.Precio</td>
-                    <td>@inmueble.PropietarioNombre</td>
-                    <td class="text-center">@inmueble.TipoInmuebleNombre</td>
-                    <td class="text-center">
-
-                        <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-sm btn-warning me-1">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <form asp-action="Eliminar" asp-route-id="@inmueble.Id" method="post"
-                            class="d-inline form-eliminar">
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                        <a asp-action="Detalles" asp-route-id="@inmueble.Id" class="btn btn-sm btn-info ms-1">
-                            <i class="bi bi-plus-lg"></i>
-                        </a>
-                    </td>
+                    <td colspan="9" class="text-center text-muted">No se encontraron inmuebles con esos filtros.</td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <!-- Paginación (mantiene filtros) -->
     <nav aria-label="Paginación">
         <ul class="pagination justify-content-center">
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            @for (int i = 1; i <= totalPaginas; i++)
             {
-                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                <li class="page-item @(paginaActual == i ? "active" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Index", new {
+                           page = i,
+                           pageSize = 5,
+                           propietario = filtroPropietario,
+                           estado = filtroEstado
+                       })">@i</a>
                 </li>
             }
         </ul>
     </nav>
-
 </div>
-
-
-
 
 @section Scripts {
     <script>
         $(function () {
-            // Mostrar alerta si vino desde TempData
-            @if (TempData["MensajeExito"] != null)
-                {
-                    <text>
-                        Swal.fire({
-                            icon: 'success',
-                        title: '¡Éxito!',
-                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
-                        confirmButtonColor: '#bb4900'
-                                                                                        });
-                    </text>
-            }
-
-
-                // Inicializar DataTable
-                $('#tablaInquilinos').DataTable({
-                    language: { url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' },
-                    pageLength: 5,
-                    lengthMenu: [5, 10, 25, 50],
-                    order: [[0, 'asc']]
-                });
-        });
-    </script>
-
-
-
-    <script>
-        $(function () {
+            // Confirmación de eliminación
             $('.form-eliminar').on('submit', function (e) {
-                e.preventDefault(); // Evita el envío automático
-
+                e.preventDefault();
                 const form = this;
-
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: "Esta acción eliminará un propietario.",
+                    text: "Esta acción eliminará un inmueble.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#bb4900',
@@ -122,23 +209,23 @@
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        form.submit(); // Envía el formulario si el usuario confirma
+                        form.submit();
                     }
                 });
             });
 
-            // Mostrar alerta de éxito si viene desde TempData
+            // Alerta de éxito (si viene desde TempData)
             @if (TempData["MensajeExito"] != null)
-                {
-                    <text>
-                        Swal.fire({
-                            icon: 'success',
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                                            });
-                    </text>
+                    });
+                </text>
             }
-                                    });
+        });
     </script>
 }

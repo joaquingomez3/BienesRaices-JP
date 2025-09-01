@@ -20,11 +20,19 @@ public class UsuarioController : Controller
     }
 
     [Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
-    public IActionResult Index()
+    [HttpGet]
+    public async Task<IActionResult> Index(int page, int pageSize = 5)
     {
-        var lista = repoUsuario.ObtenerUsuarios();
-        return View(lista);
+        page = page < 1 ? 1 : page;
+        var totalUsuarios = await repoUsuario.ContarUsuarios();
+        var usuarios = await repoUsuario.UsuariosPaginados(page, pageSize);
+
+        ViewBag.TotalPages = (int)Math.Ceiling((double)totalUsuarios / pageSize);
+        ViewBag.CurrentPage = page;
+
+        return View(usuarios);
     }
+
 
     [HttpGet]
     public IActionResult Login()
@@ -47,7 +55,8 @@ public class UsuarioController : Controller
             {
 
                 new Claim(ClaimTypes.Name, usuarioEncontrado.Nombre_usuario+ " "+usuarioEncontrado.Apellido_usuario),
-                new Claim(ClaimTypes.Role, usuarioEncontrado.RolUsuario.ToLower()) // Rol en minúsculas
+                new Claim(ClaimTypes.Role, usuarioEncontrado.RolUsuario.ToLower()), // Rol en minúsculas
+                new Claim("Id", usuarioEncontrado.Id.ToString())
             };
                 var claimsIdentity = new ClaimsIdentity(
                     claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -91,6 +100,71 @@ public class UsuarioController : Controller
         usuario.Activo = true;
 
         repoUsuario.Alta(usuario); // Método que guarda el usuario en la base
+        TempData["MensajeExito"] = "Propietario creado con éxito ✅";
         return RedirectToAction("Index");
     }
+
+    [HttpGet]
+    public IActionResult Editar(int id)
+    {
+        var usuario = repoUsuario.ObtenerUsuarioPorId(id);
+
+        if (usuario == null)
+        {
+            return NotFound();
+        }
+
+        return View(usuario);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Editar(Usuario usuario)
+    {
+
+        if (ModelState.IsValid)
+        {
+            var usuarioExistente = repoUsuario.ObtenerUsuarioPorId(usuario.Id);
+
+            if (usuarioExistente != null)
+            {
+                // Verificar si la contraseña ha cambiado
+                if (usuario.Password != usuarioExistente.Password)
+                {
+                    var hasher = new PasswordHasher<Usuario>();
+                    usuario.Password = hasher.HashPassword(usuario, usuario.Password);
+                }
+                else
+                {
+                    usuario.Password = usuarioExistente.Password; // Mantener la contraseña existente
+                }
+
+                repoUsuario.ActualizarUsuario(usuario);
+                TempData["MensajeExito"] = "Usuario editado con éxito ✅";
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        return View(usuario);
+    }
+
+    public IActionResult Eliminar()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Eliminar(int id)
+    {
+        var usuario = new Usuario { Id = id };
+        repoUsuario.EliminarUsuario(usuario);
+        TempData["MensajeExito"] = "Usuario eliminado con éxito ✅";
+        return RedirectToAction(nameof(Index));
+    }
+
 }

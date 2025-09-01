@@ -5,7 +5,9 @@
 
 <div class="container mt-5">
     <h2 class="mb-4 text-center">✏️ Editar Inmueble</h2>
-
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
     <form asp-action="Editar" method="post" enctype="multipart/form-data" class="shadow-lg p-4 rounded bg-light">
         <input type="hidden" asp-for="Id" />
 
@@ -39,51 +41,51 @@
                 <input asp-for="Precio" type="number" step="0.01" class="form-control" />
             </div>
 
-                    <div class="col-md-3">
-                        <label asp-for="Estado" class="form-label fw-bold"></label>
-                        <select asp-for="Estado" class="form-select">
-                            <option value="DISPONIBLE">Disponible</option>
-                            <option value="SUSPENDIDO">Suspendido</option>
-                            <option value="OCUPADO">Ocupado</option>
-                        </select>
-                    </div>
+            <div class="col-md-3">
+                <label asp-for="Estado" class="form-label fw-bold"></label>
+                <select asp-for="Estado" class="form-select">
+                    <option value="DISPONIBLE">Disponible</option>
+                    <option value="SUSPENDIDO">Suspendido</option>
+                    <option value="OCUPADO">Ocupado</option>
+                </select>
+            </div>
 
-                    <div class="col-md-6">
-            <label asp-for="Id_Propietario" class="form-label fw-bold">Propietario</label>
-            <select asp-for="Id_Propietario" class="form-select"
+            <div class="col-md-6">
+                <label asp-for="Id_Propietario" class="form-label fw-bold">Propietario</label>
+                <select asp-for="Id_Propietario" class="form-select"
                     asp-items="@(ViewBag.Propietarios as IEnumerable<SelectListItem>)">
-                <option value="">-- Seleccione un propietario --</option>
-            </select>
-        </div>
+                    <option value="">-- Seleccione un propietario --</option>
+                </select>
+            </div>
 
-        <div class="col-md-6">
-            <label asp-for="Id_Tipo" class="form-label fw-bold">Tipo de Inmueble</label>
-            <select asp-for="Id_Tipo" class="form-select"
+            <div class="col-md-6">
+                <label asp-for="Id_Tipo" class="form-label fw-bold">Tipo de Inmueble</label>
+                <select asp-for="Id_Tipo" class="form-select"
                     asp-items="@(new SelectList(ViewBag.Tipos, "Id", "Nombre", Model.Id_Tipo))">
-                <option value="">-- Seleccione un tipo --</option>
-            </select>
-        </div>
+                    <option value="">-- Seleccione un tipo --</option>
+                </select>
+            </div>
 
             <div class="col-12 mt-4">
                 <h4>Galería de Fotos</h4>
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     @foreach (var foto in Model.Fotos)
-{
-    var src = !string.IsNullOrEmpty(foto.Url)
-        ? foto.Url
-        : Url.Action("VerFoto", "Inmueble", new { id = foto.Id_foto });
+                    {
+                        var src = !string.IsNullOrEmpty(foto.Url)
+                        ? foto.Url
+                        : Url.Action("VerFoto", "Inmueble", new { id = foto.Id_foto });
 
-    <div class="position-relative d-inline-block me-2 mb-2">
-        <img src="@src" class="img-thumbnail" style="width: 150px;" />
+                        <div class="position-relative d-inline-block me-2 mb-2">
+                            <img src="@src" class="img-thumbnail" style="width: 150px;" />
 
-        <button type="button" class="btn btn-sm btn-danger" title="Eliminar foto"
-        onclick="eliminarFoto(@foto.Id_foto)">
-    &times;
-</button>
+                            <button type="button" class="btn btn-sm btn-danger" title="Eliminar foto"
+                                onclick="eliminarFoto(@foto.Id_foto)">
+                                &times;
+                            </button>
 
 
-    </div>
-}
+                        </div>
+                    }
 
 
                 </div>
@@ -96,14 +98,13 @@
 
             <div class="col-md-6">
                 <label for="urlFoto" class="form-label fw-bold">Agregar por URL</label>
-                <input type="url" id="urlFoto" name="urlFoto" class="form-control" placeholder="Ej: https://ejemplo.com/foto.jpg" />
+                <input type="url" id="urlFoto" name="urlFoto" class="form-control"
+                    placeholder="Ej: https://ejemplo.com/foto.jpg" />
             </div>
         </div>
 
         <div class="mt-4 d-flex justify-content-between">
-            <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Volver
-            </a>
+
             <button type="submit" class="btn btn-primary" style="background-color:#47220d;">
                 <i class="bi bi-save"></i> Guardar Cambios
             </button>
@@ -115,44 +116,44 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         @if (TempData["MensajeExito"] != null)
-        {
-            <text>
-                Swal.fire({
-                    icon: 'success',
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
                     title: '¡Éxito!',
                     text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                     confirmButtonColor: '#0d6efd'
+                                });
+                </text>
+        }
+
+            function eliminarFoto(id) {
+                Swal.fire({
+                    title: '¿Eliminar esta foto?',
+                    text: 'Esta acción no se puede deshacer.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.createElement("form");
+                        form.method = "post";
+                        form.action = "/Inmueble/EliminarFoto";
+
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = "id";
+                        input.value = id;
+
+                        form.appendChild(input);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
                 });
-            </text>
-        }
-
-       function eliminarFoto(id) {
-    Swal.fire({
-        title: '¿Eliminar esta foto?',
-        text: 'Esta acción no se puede deshacer.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const form = document.createElement("form");
-            form.method = "post";
-            form.action = "/Inmueble/EliminarFoto";
-
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "id";
-            input.value = id;
-
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
-}
+            }
 
     </script>
 }

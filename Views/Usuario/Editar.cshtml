@@ -1,69 +1,81 @@
 @model bienesraices.Models.Usuario
+
 @{
     ViewData["Title"] = "Editar Usuario";
 }
 
 <div class="container mt-5">
-    <h2 class="mb-4 text-center">✏️ Editar Usuario</h2>
+    <h2 class="mb-4 text-center">👤 Editar Usuario</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
 
     <form asp-action="Editar" method="post" enctype="multipart/form-data" class="shadow-lg p-4 rounded bg-light">
         <input type="hidden" asp-for="Id" />
 
         <div class="row g-3">
             <div class="col-md-6">
-                <label asp-for="Nombre_usuario" class="form-label fw-bold">Nombre</label>
-                <input asp-for="Nombre_usuario" class="form-control" />
+                <label asp-for="Nombre_usuario" class="form-label fw-bold"></label>
+                <input asp-for="Nombre_usuario" class="form-control" placeholder="Ej: Juan" />
                 <span asp-validation-for="Nombre_usuario" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Apellido_usuario" class="form-label fw-bold">Apellido</label>
-                <input asp-for="Apellido_usuario" class="form-control" />
+                <label asp-for="Apellido_usuario" class="form-label fw-bold"></label>
+                <input asp-for="Apellido_usuario" class="form-control" placeholder="Ej: Pérez" />
                 <span asp-validation-for="Apellido_usuario" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Email" class="form-label fw-bold">Email</label>
-                <input asp-for="Email" class="form-control" />
+                <label asp-for="Email" class="form-label fw-bold"></label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="ejemplo@mail.com" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Password" class="form-label fw-bold">Contraseña</label>
-                <input asp-for="Password" type="password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+                <label asp-for="Password" class="form-label fw-bold"></label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="********" />
+                <span class="text-danger"></span>
             </div>
 
-            <div class="col-md-6 text-center">
-                <label class="form-label fw-bold">Foto actual</label><br />
-                @if (!string.IsNullOrEmpty(Model.Foto))
-                {
-                    <img src="@Model.Foto" alt="Foto" width="80" height="80" class="rounded-circle mb-2 shadow-sm" />
-                }
-                else
-                {
-                    <i class="bi bi-person-circle fs-1 text-secondary"></i>
-                }
-                <input type="file" name="Foto" class="form-control mt-2" />
+            <div class="col-md-6">
+                <label asp-for="Id_tipo_usuario" class="form-label fw-bold">Tipo de Usuario</label>
+                <select asp-for="Id_tipo_usuario" class="form-select">
+                    <option value="1">Administrador</option>
+                    <option value="2">Empleado</option>
+                </select>
             </div>
 
             <div class="col-md-3">
-                <label class="form-label fw-bold">Tipo de Usuario</label>
-                <input type="text" class="form-control" value="@Model.RolUsuario" disabled />
+                <label asp-for="Activo" class="form-label fw-bold">Estado</label>
+                <select asp-for="Activo" class="form-select">
+                    <option value="true" selected>Activo</option>
+                    <option value="false">Inactivo</option>
+                </select>
             </div>
 
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Estado</label>
-                <input type="text" class="form-control" value="@(Model.Activo ? "Activo" : "Inactivo")" disabled />
+            <div class="col-md-6">
+                <label for="fotoUsuario" class="form-label fw-bold">Foto de Perfil</label>
+                <input type="file" id="fotoUsuario" name="fotoUsuario" class="form-control" />
             </div>
+
+            @if (!string.IsNullOrEmpty(Model.Foto))
+            {
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Foto Actual</label>
+                    <div class="d-flex align-items-center">
+                        <img src="@Model.Foto" alt="Foto usuario" class="img-thumbnail me-3" style="width: 120px;" />
+                        <button type="button" class="btn btn-sm btn-danger" onclick="eliminarFoto(@Model.Id)">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            }
         </div>
 
         <div class="mt-4 d-flex justify-content-between">
-            <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Cancelar
-            </a>
-            <button type="submit" class="btn btn-warning text-white">
-                <i class="bi bi-save me-1"></i> Guardar cambios
+            <button type="submit" class="btn" style="background-color: #bb4900; color: white;">
+                <i class="bi bi-save"></i> Guardar Cambios
             </button>
         </div>
     </form>
@@ -71,4 +83,35 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function eliminarFoto(id) {
+            Swal.fire({
+                title: '¿Eliminar esta foto?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement("form");
+                    form.method = "post";
+                    form.action = "/Usuario/EliminarFoto";
+
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "id";
+                    input.value = id;
+
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+
+    </script>
 }

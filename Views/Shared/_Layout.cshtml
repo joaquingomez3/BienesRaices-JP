@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-4-theme@1.5.2/dist/select2-bootstrap.min.css"
+        rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 
@@ -38,40 +40,44 @@
             <div class="dropdown ms-auto">
                 <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" role="button"
                     id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
                         <div class="d-flex align-items-center">
-
+                            @* Información del usuario *@
                             <div class="d-flex flex-column text-end me-2">
-                                <span class="fw-bold mt-4">@User.Identity.Name</span>
-                                <small class="text-muted mt-1">
-                                    (@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)
-                                </small>
+                                <span class="fw-bold">@User.Identity.Name</span>
+                                @if (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value != null)
+                                {
+                                    <span class="badge text-bg-light text-dark mt-1" style="font-size:0.65rem;">
+                                        @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                                    </span>
+                                }
                             </div>
 
-                            @if (User.FindFirst("FotoPerfil")?.Value != null)
+                            @* Foto de perfil o ícono *@
+                            @if (!string.IsNullOrEmpty(User.FindFirst("FotoPerfil")?.Value))
                             {
-                                <img src="@User.FindFirst("FotoPerfil")?.Value" class="rounded-circle ms-2" alt="Usuario" width="32"
-                                    height="32" />
+                                <img src="@User.FindFirst("FotoPerfil")?.Value" class="rounded-circle border border-light"
+                                    alt="Usuario" width="40" height="40" />
                             }
                             else
                             {
-                                <i class="fas fa-user-circle fa-2x ms-2"></i>
+                                <i class="fas fa-user-circle fa-2x text-light"></i>
                             }
                         </div>
                     }
                     else
                     {
-                        <span>No has iniciado Sesión</span>
+                        <span>No has iniciado sesión</span>
                     }
-
                 </a>
 
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                @* Dropdown *@
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
                     <li>
-                        <a style="color:#bb4900;" class="dropdown-item" asp-controller="Usuario" asp-action="Salir">
-                            Cerrar Sesión
+                        <a class="dropdown-item text-primary" style="color:#bb4900;" asp-controller="Usuario"
+                            asp-action="Salir">
+                            <i class="fas fa-sign-out-alt me-2" style="color:#bb4900;"></i> Cerrar sesión
                         </a>
                     </li>
                 </ul>
