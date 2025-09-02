@@ -1,6 +1,11 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+@using System.Security.Claims
 
+@{
+    var claimsIdentity = User.Identity as ClaimsIdentity;
+    var fotoPerfil = claimsIdentity?.FindFirst("FotoPerfil")?.Value;
+}
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

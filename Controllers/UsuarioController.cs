@@ -56,8 +56,12 @@ public class UsuarioController : Controller
 
                 new Claim(ClaimTypes.Name, usuarioEncontrado.Nombre_usuario+ " "+usuarioEncontrado.Apellido_usuario),
                 new Claim(ClaimTypes.Role, usuarioEncontrado.RolUsuario.ToLower()), // Rol en minúsculas
-                new Claim(ClaimTypes.NameIdentifier, usuarioEncontrado.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, usuarioEncontrado.Id.ToString()),
             };
+                if (!string.IsNullOrEmpty(usuarioEncontrado.Foto))
+                {
+                    claims.Add(new Claim("FotoPerfil", usuarioEncontrado.Foto));
+                }
                 var claimsIdentity = new ClaimsIdentity(
                     claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(
@@ -77,6 +81,44 @@ public class UsuarioController : Controller
         return View();
     }
 
+    
+
+    [HttpPost]
+    public async Task<IActionResult> CrearUsuario(Usuario usuario,IFormFile Foto)
+    {
+        if (ModelState.IsValid)
+        {
+            if (Foto != null && Foto.Length > 0)
+            {
+                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                if (!Directory.Exists(uploads))
+                {
+                    Directory.CreateDirectory(uploads);
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Foto.FileName);
+                var filePath = Path.Combine(uploads, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await Foto.CopyToAsync(stream);
+                }
+
+                usuario.Foto = "/uploads/" + fileName;
+            }
+            var hasher = new PasswordHasher<Usuario>();
+            usuario.Password = hasher.HashPassword(usuario, usuario.Password);
+            usuario.Activo = true;
+
+            repoUsuario.Alta(usuario); // Método que guarda el usuario en la base
+            TempData["MensajeExito"] = "Usuario creado con éxito ✅";
+            
+
+        }
+        return RedirectToAction("Index");
+
+    }
+
 
     public async Task<IActionResult> Salir()
     {
@@ -92,17 +134,6 @@ public class UsuarioController : Controller
         return View();
     }
 
-    [HttpPost]
-    public IActionResult CrearUsuario(Usuario usuario)
-    {
-        var hasher = new PasswordHasher<Usuario>();
-        usuario.Password = hasher.HashPassword(usuario, usuario.Password);
-        usuario.Activo = true;
-
-        repoUsuario.Alta(usuario); // Método que guarda el usuario en la base
-        TempData["MensajeExito"] = "Propietario creado con éxito ✅";
-        return RedirectToAction("Index");
-    }
 
     [HttpGet]
     public IActionResult Editar(int id)
