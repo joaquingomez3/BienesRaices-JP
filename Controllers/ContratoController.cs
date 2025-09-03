@@ -76,6 +76,7 @@ public class ContratoController : Controller
         if (ModelState.IsValid)
         {
             repoContrato.CrearContrato(contrato);
+            TempData["MensajeExito"] = "Inmueble actualizado correctamente";
             return RedirectToAction("Index");
         }
 

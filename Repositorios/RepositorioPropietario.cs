@@ -200,4 +200,38 @@ public class RepositorioPropietario : RepositorioBase
     }
 
 
+    public List<Propietario> buscarPropietarios(string termino)
+    {
+        List<Propietario> propietarios = new List<Propietario>();
+
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = "SELECT * FROM propietario WHERE (apellido LIKE @termino OR nombre LIKE @termino) AND estado = 1";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@termino", $"%{termino}%");
+                connection.Open();
+                var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    propietarios.Add(new Propietario
+                    {
+                        Id = reader.GetInt32("id"),
+                        Dni = reader.GetString("dni"),
+                        Apellido = reader.GetString("apellido"),
+                        Nombre = reader.GetString("nombre"),
+
+                    });
+
+                }
+                connection.Close();
+            }
+
+
+            return propietarios;
+
+        }
+    }
 }

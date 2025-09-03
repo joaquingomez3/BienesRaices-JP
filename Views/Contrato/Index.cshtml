@@ -69,14 +69,14 @@
                                         </a>
                                     </li>
                                 }
-                               
-                                    <li>
-                                        <a class="dropdown-item text-warning" asp-controller="Pago" asp-action="Deuda"
-                                            asp-route-id="@contrato.Id">
-                                            <i class="fa fa-exclamation-triangle me-2"></i> Ver Deuda
-                                        </a>
-                                    </li>
-                               
+
+                                <li>
+                                    <a class="dropdown-item text-warning" asp-controller="Pago" asp-action="Deuda"
+                                        asp-route-id="@contrato.Id">
+                                        <i class="fa fa-exclamation-triangle me-2"></i> Ver Deuda
+                                    </a>
+                                </li>
+
                             </ul>
                         </div>
                     </td>
@@ -97,3 +97,42 @@
         </ul>
     </nav>
 </div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Confirmación de eliminación
+            $('.form-eliminar').on('submit', function (e) {
+                e.preventDefault();
+                const form = this;
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará un inmueble.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#bb4900',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
+            // Alerta de éxito (si viene desde TempData)
+            @if (TempData["MensajeExito"] != null)
+                {
+                    <text>
+                        Swal.fire({
+                            icon: 'success',
+                        title: '¡Éxito!',
+                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
+                        confirmButtonColor: '#bb4900'
+                            });
+                    </text>
+            }
+            });
+    </script>
+}

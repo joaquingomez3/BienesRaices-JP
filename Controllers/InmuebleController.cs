@@ -71,6 +71,7 @@ public class InmuebleController : Controller
         if (ModelState.IsValid)
         {
             repoInmueble.CrearInmueble(inmueble);
+            TempData["MensajeExito"] = "Inmueble actualizado correctamente";
             return RedirectToAction("Index");
         }
 
@@ -81,6 +82,9 @@ public class InmuebleController : Controller
         ViewBag.Tipos = repoTipo.ObtenerTiposInmueble();
         return View(inmueble);
     }
+
+
+
     [HttpGet]
     public IActionResult Editar(int id)
     {
@@ -199,5 +203,11 @@ public class InmuebleController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    public JsonResult BuscarPropietarios(string term)
+    {
+        var propietarios = repoPropietario.buscarPropietarios(term);
 
+        return Json(propietarios);
+    }
 }

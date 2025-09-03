@@ -6,6 +6,7 @@
     var claimsIdentity = User.Identity as ClaimsIdentity;
     var fotoPerfil = claimsIdentity?.FindFirst("FotoPerfil")?.Value;
 }
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -33,63 +34,188 @@
 @if (!(ViewBag.OcultarHeader ?? false))
 {
 
-    <header class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid" style="color:white;">
+    <header class="navbar navbar-expand-lg navbar-dark shadow-sm"
+        style="background: linear-gradient(90deg, #bb4900, #8a2e00);">
 
+        <div class="container-fluid">
+            <!-- LOGO -->
             <a class="navbar-brand d-flex align-items-center" href="/Home/Index">
                 <img src="~/imagenes/logo.png" alt="Logo" style="height:40px;" class="me-2">
-                <span class="text-white">Bienes Raíces</span>
+                <span class="fw-bold text-white">Bienes Raíces</span>
             </a>
 
+            <!-- Toggle responsive -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            <div class="dropdown ms-auto">
-                <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" role="button"
-                    id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+            <!-- LINKS -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <!-- Propietarios -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-badge me-1"></i> Propietarios
+                        </a>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li><a class="dropdown-item" asp-controller="Propietario" asp-action="Index"><i
+                                        class="bi bi-list-ul me-1"></i> Listar</a></li>
+                            <li><a class="dropdown-item" asp-controller="Propietario" asp-action="Crear"><i
+                                        class="bi bi-person-plus me-1"></i> Crear</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Inquilinos -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-lines-fill me-1"></i> Inquilinos
+                        </a>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li><a class="dropdown-item" asp-controller="Inquilino" asp-action="Index"><i
+                                        class="bi bi-list-ul me-1"></i> Listar</a></li>
+                            <li><a class="dropdown-item" asp-controller="Inquilino" asp-action="Crear"><i
+                                        class="bi bi-person-plus me-1"></i> Crear</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Inmuebles -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-house-door me-1"></i> Inmuebles
+                        </a>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li><a class="dropdown-item" asp-controller="Inmueble" asp-action="Index"><i
+                                        class="bi bi-list-ul me-1"></i> Listar</a></li>
+                            <li><a class="dropdown-item" asp-controller="Inmueble" asp-action="Crear"><i
+                                        class="bi bi-house-add me-1"></i> Crear</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Pagos -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-cash-coin me-1"></i> Pagos
+                        </a>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li><a class="dropdown-item" asp-controller="Pago" asp-action="Index"><i
+                                        class="bi bi-list-ul me-1"></i> Listar</a></li>
+                            <li><a class="dropdown-item" asp-controller="Pago" asp-action="Crear"><i
+                                        class="bi bi-plus-circle me-1"></i> Crear</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Contratos -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-file-earmark-text me-1"></i> Contratos
+                        </a>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li><a class="dropdown-item" asp-controller="Contrato" asp-action="Index"><i
+                                        class="bi bi-list-ul me-1"></i> Listar</a></li>
+                            <li><a class="dropdown-item" asp-controller="Contrato" asp-action="Crear"><i
+                                        class="bi bi-file-earmark-plus me-1"></i> Crear</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Usuarios (solo administrador) -->
+                    @if (User.IsInRole("admin"))
                     {
-                        <div class="d-flex align-items-center">
-                            @* Información del usuario *@
-                            <div class="d-flex flex-column text-end me-2">
-                                <span class="fw-bold">@User.Identity.Name</span>
-                                @if (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value != null)
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i> Usuarios
+                            </a>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li><a class="dropdown-item" asp-controller="Usuario" asp-action="Index"><i
+                                            class="bi bi-list-ul me-1"></i> Listar</a></li>
+                                <li><a class="dropdown-item" asp-controller="Usuario" asp-action="Crear"><i
+                                            class="bi bi-person-plus me-1"></i> Crear</a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+
+                <!-- PERFIL USUARIO -->
+                <div class="dropdown ms-auto">
+                    <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="userMenu"
+                        data-bs-toggle="dropdown">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <div class="d-flex align-items-center">
+                                <div class="d-flex flex-column text-end me-2">
+                                    <span class="fw-bold">@User.Identity.Name</span>
+                                    @if (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value != null)
+                                    {
+                                        <span class="badge text-bg-light text-dark mt-1" style="font-size:0.65rem;">
+                                            @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+                                        </span>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(User.FindFirst("FotoPerfil")?.Value))
                                 {
-                                    <span class="badge text-bg-light text-dark mt-1" style="font-size:0.65rem;">
-                                        @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
-                                    </span>
+                                    <img src="@User.FindFirst("FotoPerfil")?.Value" class="rounded-circle border border-light"
+                                        alt="Usuario" width="40" height="40" />
+                                }
+                                else
+                                {
+                                    <i class="fas fa-user-circle fa-2x text-light"></i>
                                 }
                             </div>
-
-                            @* Foto de perfil o ícono *@
-                            @if (!string.IsNullOrEmpty(User.FindFirst("FotoPerfil")?.Value))
-                            {
-                                <img src="@User.FindFirst("FotoPerfil")?.Value" class="rounded-circle border border-light"
-                                    alt="Usuario" width="40" height="40" />
-                            }
-                            else
-                            {
-                                <i class="fas fa-user-circle fa-2x text-light"></i>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <span>No has iniciado sesión</span>
-                    }
-                </a>
-
-                @* Dropdown *@
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
-                    <li>
-                        <a class="dropdown-item text-primary" style="color:#bb4900;" asp-controller="Usuario"
-                            asp-action="Salir">
-                            <i class="fas fa-sign-out-alt me-2" style="color:#bb4900;"></i> Cerrar sesión
-                        </a>
-                    </li>
-                </ul>
+                        }
+                        else
+                        {
+                            <span>No has iniciado sesión</span>
+                        }
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <a class="dropdown-item logout-link" asp-controller="Usuario" asp-action="Salir">
+                                <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
         </div>
     </header>
+    <style>
+        /* Links */
+        .navbar .nav-link {
+            color: #fff !important;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .navbar .nav-link:hover {
+            color: #ffd9b3 !important;
+            /* un tono claro para contraste */
+        }
+
+        /* Dropdowns */
+        .dropdown-menu {
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .dropdown-item:hover {
+            background-color: #fff4ec;
+            color: #bb4900;
+        }
+
+        /* Perfil */
+        .user-link {
+            font-weight: 500;
+        }
+
+        .logout-link {
+            color: #bb4900 !important;
+            font-weight: 500;
+        }
+
+        .logout-link i {
+            color: #bb4900;
+        }
+    </style>
 }
 
 <body>
