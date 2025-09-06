@@ -129,138 +129,27 @@ public class RepositorioInmueble : RepositorioBase
         }
     }
 
-    public async Task<int> ContarInmuebles()
-    {
-        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-
-            var query = "SELECT COUNT(*) FROM inmueble WHERE estado = 1";
-
-            using (MySqlCommand command = new MySqlCommand(query, connection))
-            {
-                var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
-            }
-        }
-
-    }
-
-    public async Task<int> ContarInmuebles(string? propietario, string? estado)
+    // Método que devuelve la cantidad total de inmuebles aplicando filtros dinámicos
+    public async Task<int> ContarInmuebles(
+    string? propietario,
+    string? estado,
+    string? uso,
+    string? tipo,
+    string? ambientes,
+    decimal? precioMin,
+    decimal? precioMax)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
             await connection.OpenAsync();
 
             var query = @"
-                SELECT COUNT(*)
-                FROM inmueble i
-                INNER JOIN propietario p ON i.id_propietario = p.id
-                INNER JOIN tipo_inmueble t ON i.id_tipo = t.id
-                WHERE i.estado <> 0
-            ";
-
-            if (!string.IsNullOrEmpty(propietario))
-                query += " AND (p.apellido LIKE @prop OR p.nombre LIKE @prop)";
-
-            if (!string.IsNullOrEmpty(estado))
-                query += " AND i.estado = @estado";
-
-            using (var command = new MySqlCommand(query, connection))
-            {
-                if (!string.IsNullOrEmpty(propietario))
-                    command.Parameters.AddWithValue("@prop", "%" + propietario + "%");
-
-                if (!string.IsNullOrEmpty(estado))
-                    command.Parameters.AddWithValue("@estado", estado);
-
-                var result = await command.ExecuteScalarAsync();
-                return Convert.ToInt32(result);
-            }
-        }
-    }
-
-    public async Task<List<Inmueble>> InmueblesPaginados(int page, int pageSize)
-    {
-        var lista = new List<Inmueble>();
-
-        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-
-            var query = @"
-                SELECT 
-                    i.id,
-                    i.direccion,
-                    i.uso,
-                    i.ambientes,
-                    i.coordenadas,
-                    i.precio,
-                    i.estado,
-                    i.descripcion,
-                    CONCAT(p.apellido, ' ', p.nombre) AS propietario,
-                    t.nombre AS tipo_inmueble
-                FROM inmueble i
-                INNER JOIN propietario p ON i.id_propietario = p.id
-                INNER JOIN tipo_inmueble t ON i.id_tipo = t.id
-                
-                ORDER BY i.id
-                LIMIT @PageSize OFFSET @Offset";
-
-            using (MySqlCommand command = new MySqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@PageSize", pageSize);
-                command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
-
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        lista.Add(new Inmueble
-                        {
-                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                            Direccion = reader.GetString(reader.GetOrdinal("Direccion")),
-                            Uso = reader.GetString(reader.GetOrdinal("Uso")),
-                            Ambientes = reader.GetInt32(reader.GetOrdinal("Ambientes")),
-                            Coordenadas = reader.GetString(reader.GetOrdinal("Coordenadas")),
-                            Precio = reader.GetDecimal(reader.GetOrdinal("Precio")),
-                            Estado = reader.GetString(reader.GetOrdinal("Estado")),
-                            PropietarioNombre = reader.GetString(reader.GetOrdinal("propietario")),
-                            TipoInmuebleNombre = reader.GetString(reader.GetOrdinal("tipo_inmueble"))
-                        });
-                    }
-                }
-            }
-            await connection.CloseAsync();
-        }
-        return lista;
-    }
-
-    public async Task<List<Inmueble>> InmueblesFiltrados(int page, int pageSize, string? propietario, string? estado)
-    {
-        var lista = new List<Inmueble>();
-
-        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-
-            var query = @"
-                SELECT 
-                    i.id,
-                    i.direccion,
-                    i.uso,
-                    i.ambientes,
-                    i.coordenadas,
-                    i.precio,
-                    i.estado,
-                    i.descripcion,
-                    CONCAT(p.apellido, ' ', p.nombre) AS propietario,
-                    t.nombre AS tipo_inmueble
-                FROM inmueble i
-                INNER JOIN propietario p ON i.id_propietario = p.id
-                INNER JOIN tipo_inmueble t ON i.id_tipo = t.id
-                WHERE i.estado <> 0
-            ";
+            SELECT COUNT(*)
+            FROM inmueble i
+            INNER JOIN propietario p ON i.id_propietario = p.id
+            INNER JOIN tipo_inmueble t ON i.id_tipo = t.id
+            WHERE i.estado <> 0
+        ";
 
             // 🔹 filtros dinámicos
             if (!string.IsNullOrEmpty(propietario))
@@ -269,8 +158,111 @@ public class RepositorioInmueble : RepositorioBase
             if (!string.IsNullOrEmpty(estado))
                 query += " AND i.estado = @estado";
 
+            if (!string.IsNullOrEmpty(uso))
+                query += " AND i.uso = @uso";
+
+            if (!string.IsNullOrEmpty(tipo))
+                query += " AND t.nombre = @tipo";
+
+            if (!string.IsNullOrEmpty(ambientes))
+                query += " AND i.ambientes = @ambientes";
+
+            if (precioMin.HasValue)
+                query += " AND i.precio >= @precioMin";
+
+            if (precioMax.HasValue)
+                query += " AND i.precio <= @precioMax";
+
+            using (var command = new MySqlCommand(query, connection))
+            // 🔹 asignación de parámetros (previene SQL Injection)
+            {
+                if (!string.IsNullOrEmpty(propietario))
+                    command.Parameters.AddWithValue("@prop", "%" + propietario + "%");
+
+                if (!string.IsNullOrEmpty(estado))
+                    command.Parameters.AddWithValue("@estado", estado);
+
+                if (!string.IsNullOrEmpty(uso))
+                    command.Parameters.AddWithValue("@uso", uso);
+
+                if (!string.IsNullOrEmpty(tipo))
+                    command.Parameters.AddWithValue("@tipo", tipo);
+
+                if (!string.IsNullOrEmpty(ambientes))
+                    command.Parameters.AddWithValue("@ambientes", ambientes);
+
+                if (precioMin.HasValue)
+                    command.Parameters.AddWithValue("@precioMin", precioMin);
+
+                if (precioMax.HasValue)
+                    command.Parameters.AddWithValue("@precioMax", precioMax);
+
+                var result = await command.ExecuteScalarAsync();
+                return Convert.ToInt32(result);
+            }
+        }
+    }
+
+    // Método que trae la lista de inmuebles filtrados y paginados
+    public async Task<List<Inmueble>> InmueblesFiltrados(
+        int page,
+        int pageSize,
+        string? propietario,
+        string? estado,
+        string? uso,
+        string? tipo,
+        string? ambientes,
+        decimal? precioMin,
+        decimal? precioMax)
+    {
+        var lista = new List<Inmueble>();
+
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            var query = @"
+            SELECT 
+                i.id,
+                i.direccion,
+                i.uso,
+                i.ambientes,
+                i.coordenadas,
+                i.precio,
+                i.estado,
+                i.descripcion,
+                CONCAT(p.apellido, ' ', p.nombre) AS propietario,
+                t.nombre AS tipo_inmueble
+            FROM inmueble i
+            INNER JOIN propietario p ON i.id_propietario = p.id
+            INNER JOIN tipo_inmueble t ON i.id_tipo = t.id
+            WHERE i.estado <> 0
+        ";
+
+            // 🔹 filtros dinámicos
+            if (!string.IsNullOrEmpty(propietario))
+                query += " AND (p.apellido LIKE @prop OR p.nombre LIKE @prop)";
+
+            if (!string.IsNullOrEmpty(estado))
+                query += " AND i.estado = @estado";
+
+            if (!string.IsNullOrEmpty(uso))
+                query += " AND i.uso = @uso";
+
+            if (!string.IsNullOrEmpty(tipo))
+                query += " AND t.nombre = @tipo";
+
+            if (!string.IsNullOrEmpty(ambientes))
+                query += " AND i.ambientes = @ambientes";
+
+            if (precioMin.HasValue)
+                query += " AND i.precio >= @precioMin";
+
+            if (precioMax.HasValue)
+                query += " AND i.precio <= @precioMax";
+
             query += @" ORDER BY i.id
-                        LIMIT @PageSize OFFSET @Offset";
+                    LIMIT @PageSize OFFSET @Offset";
 
             using (var command = new MySqlCommand(query, connection))
             {
@@ -279,6 +271,21 @@ public class RepositorioInmueble : RepositorioBase
 
                 if (!string.IsNullOrEmpty(estado))
                     command.Parameters.AddWithValue("@estado", estado);
+
+                if (!string.IsNullOrEmpty(uso))
+                    command.Parameters.AddWithValue("@uso", uso);
+
+                if (!string.IsNullOrEmpty(tipo))
+                    command.Parameters.AddWithValue("@tipo", tipo);
+
+                if (!string.IsNullOrEmpty(ambientes))
+                    command.Parameters.AddWithValue("@ambientes", ambientes);
+
+                if (precioMin.HasValue)
+                    command.Parameters.AddWithValue("@precioMin", precioMin);
+
+                if (precioMax.HasValue)
+                    command.Parameters.AddWithValue("@precioMax", precioMax);
 
                 command.Parameters.AddWithValue("@PageSize", pageSize);
                 command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
@@ -289,13 +296,13 @@ public class RepositorioInmueble : RepositorioBase
                     {
                         lista.Add(new Inmueble
                         {
-                            Id = reader.GetInt32("Id"),
-                            Direccion = reader.GetString("Direccion"),
-                            Uso = reader.GetString("Uso"),
-                            Ambientes = reader.GetInt32("Ambientes"),
-                            Coordenadas = reader.GetString("Coordenadas"),
-                            Precio = reader.GetDecimal("Precio"),
-                            Estado = reader.GetString("Estado"),
+                            Id = reader.GetInt32("id"),
+                            Direccion = reader.GetString("direccion"),
+                            Uso = reader.GetString("uso"),
+                            Ambientes = reader.GetInt32("ambientes"),
+                            Coordenadas = reader.GetString("coordenadas"),
+                            Precio = reader.GetDecimal("precio"),
+                            Estado = reader.GetString("estado"),
                             PropietarioNombre = reader.GetString("propietario"),
                             TipoInmuebleNombre = reader.GetString("tipo_inmueble")
                         });
@@ -305,6 +312,7 @@ public class RepositorioInmueble : RepositorioBase
         }
         return lista;
     }
+
 
 
     public List<Inmueble> ObtenerInmueblesDisponibles()

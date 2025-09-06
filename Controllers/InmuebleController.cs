@@ -24,35 +24,68 @@ public class InmuebleController : Controller
         repoFoto = new RepositorioFotoInmueble(configuration);
     }
 
-    // public IActionResult Index()
-    // {
-    //     var lista = repoInmueble.ObtenerInmuebles();
-    //     return View(lista);
-    // }
+
 
     [HttpGet]
-    public async Task<IActionResult> Index(int page = 1, int pageSize = 5, string? propietario = null, string? estado = null)
+    public async Task<IActionResult> Index(
+    int page = 1,
+    int pageSize = 6,
+    string? propietario = null,
+    string? estado = null,
+    string? uso = null,
+    string? tipo = null,
+    string? ambientes = null,
+    decimal? precioMin = null,
+    decimal? precioMax = null)
     {
         page = page < 1 ? 1 : page;
 
-        // 🔹 traer datos paginados
-        var inmuebles = await repoInmueble.InmueblesFiltrados(page, pageSize, propietario, estado);
+        // 🔹 traer datos paginados con filtros
+        var inmuebles = await repoInmueble.InmueblesFiltrados(
+            page,
+            pageSize,
+            propietario,
+            estado,
+            uso,
+            tipo,
+            ambientes,
+            precioMin,
+            precioMax
+        );
 
         // 🔹 contar total con filtros
-        var totalInmuebles = await repoInmueble.ContarInmuebles(propietario, estado);
+        var totalInmuebles = await repoInmueble.ContarInmuebles(
+            propietario,
+            estado,
+            uso,
+            tipo,
+            ambientes,
+            precioMin,
+            precioMax
+        );
 
+        // 🔹 cargar fotos de cada inmueble
         foreach (var inmueble in inmuebles)
         {
             inmueble.Fotos = repoFoto.ObtenerFotosPorInmuebleId(inmueble.Id);
         }
 
+        // 🔹 paginación
         ViewBag.TotalPages = (int)Math.Ceiling((double)totalInmuebles / pageSize);
         ViewBag.CurrentPage = page;
+
+        // 🔹 filtros para mantenerlos en la vista
         ViewBag.FiltroPropietario = propietario;
         ViewBag.FiltroEstado = estado;
+        ViewBag.FiltroUso = uso;
+        ViewBag.FiltroTipo = tipo;
+        ViewBag.FiltroAmbientes = ambientes;
+        ViewBag.FiltroPrecioMin = precioMin;
+        ViewBag.FiltroPrecioMax = precioMax;
 
         return View(inmuebles);
     }
+
 
 
     [HttpGet]
