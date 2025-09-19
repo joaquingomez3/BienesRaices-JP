@@ -11,14 +11,14 @@
                     <h4 class="mb-0"><i class="bi bi-search me-2"></i> Buscar contratos por DNI</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-controller="Contrato" asp-action="Index" method="get">
+                    <form asp-controller="Pago" asp-action="ListarContratos" method="get">
                         <div class="mb-3">
                             <label for="dni" class="form-label">Ingrese el DNI del inquilino</label>
                             <input type="text" class="form-control" id="dni" name="dni" placeholder="Ej: 30123456"
-                                   required pattern="\d{7,8}" maxlength="8" />
+                                required pattern="\d{7,8}" maxlength="8" />
                             <div class="form-text">Debe contener entre 7 y 8 dígitos numéricos.</div>
                         </div>
-                        
+
                         <button type="submit" class="btn btn-success w-100">
                             <i class="bi bi-arrow-right-circle me-2"></i> Buscar contratos
                         </button>

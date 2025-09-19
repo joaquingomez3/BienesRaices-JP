@@ -54,12 +54,7 @@
                                         <i class="fa fa-eye me-2"></i> Ver Detalle
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Pago" asp-action="RegistroPagos"
-                                        asp-route-id="@contrato.Id">
-                                        <i class="fa fa-dollar-sign me-2"></i> Ver Pagos
-                                    </a>
-                                </li>
+
                                 @if (contrato.Estado == "Vigente") // Ajustá según tu modelo
                                 {
                                     <li>
@@ -130,9 +125,9 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                            });
+                                    });
                     </text>
             }
-            });
+                });
     </script>
 }

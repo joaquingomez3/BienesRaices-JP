@@ -1,0 +1,66 @@
+@model IEnumerable<bienesraices.Models.Contrato>
+
+@{
+    ViewData["Title"] = "Contratos";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Contratos</h2>
+    <a asp-controller="Pago" asp-action="Index" class="btn btn-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Inmueble</th>
+                <th>Uso</th>
+                <th>Inquilino</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Monto Mensual</th>
+                <th>Creador</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var contrato in Model)
+            {
+                <tr>
+                    <td>@Html.Raw(@contrato.InmuebleContrato)</td>
+                    <td>(@contrato.InmuebleUso)</td>
+                    <td>@contrato.InquilinoContrato</td>
+                    <td>@contrato.Fecha_inicio</td>
+                    <td>@contrato.Fecha_fin</td>
+                    <td>@contrato.Monto_mensual</td>
+                    <td>@contrato.Creador</td>
+                    <td>@contrato.Estado</td>
+                    <td>
+
+                        <a asp-controller="Pago" asp-action="RegistroPagos" asp-route-contratoId="@contrato.Id"
+                            class="btn btn-primary btn-sm btn-icon">
+                            <i class="bi bi-cash-stack"></i>
+                            <span>Ver pagos</span>
+                        </a>
+
+
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

@@ -37,6 +37,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts(); // Middleware para seguridad HTTP Strict Transport Security
 }
 
+
+app.UseStaticFiles();// habilita archivos estáticos
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication(); // Middleware de autenticación

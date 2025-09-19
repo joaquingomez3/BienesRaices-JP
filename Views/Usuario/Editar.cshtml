@@ -43,19 +43,34 @@
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Password" class="form-label fw-bold"></label>
-                <input asp-for="Password" type="password" class="form-control" placeholder="********" />
-                <span class="text-danger"></span>
+                <label asp-for="Password" class="form-label fw-bold">Contraseña</label>
+                <input asp-for="Password" type="password" class="form-control"
+                    placeholder="Dejar en blanco para no cambiar" />
+                <small class="form-text text-muted">Deja este campo vacío si no deseas cambiar la contraseña
+                    actual.</small>
+                <span asp-validation-for="Password" class="text-danger"></span>
             </div>
+            @if (User.IsInRole("admin"))
+            {
+                <div class="col-md-6">
+                    <label asp-for="Id_tipo_usuario" class="form-label fw-bold">Tipo de Usuario</label>
+                    <select asp-for="Id_tipo_usuario" class="form-select">
+                        <option value="1">Administrador</option>
+                        <option value="2">Empleado</option>
+                    </select>
+                </div>
+            }
+            @if (User.IsInRole("empleado"))
+            {
+                <div class="col-md-6">
+                    <label asp-for="Id_tipo_usuario" class="form-label fw-bold">Tipo de Usuario</label>
+                    <select asp-for="Id_tipo_usuario" class="form-select">
 
-            <div class="col-md-6">
-                <label asp-for="Id_tipo_usuario" class="form-label fw-bold">Tipo de Usuario</label>
-                <select asp-for="Id_tipo_usuario" class="form-select">
-                    <option value="1">Administrador</option>
-                    <option value="2">Empleado</option>
-                </select>
-            </div>
+                        <option value="2">Empleado</option>
+                    </select>
+                </div>
 
+            }
             <div class="col-md-3">
                 <label asp-for="Activo" class="form-label fw-bold">Estado</label>
                 <select asp-for="Activo" class="form-select">
@@ -66,7 +81,7 @@
 
             <div class="col-md-6">
                 <label for="fotoUsuario" class="form-label fw-bold">Foto de Perfil</label>
-                <input type="file" id="fotoUsuario" name="fotoUsuario" class="form-control" />
+                <input type="file" id="Foto" name="Foto" class="form-control" />
             </div>
 
             @if (!string.IsNullOrEmpty(Model.Foto))
@@ -74,7 +89,8 @@
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Foto Actual</label>
                     <div class="d-flex align-items-center">
-                        <img src="@Model.Foto" alt="Foto usuario" class="img-thumbnail me-3" style="width: 120px;" />
+                        <img src="@Url.Content(Model.Foto)" alt="Foto usuario" class="img-thumbnail me-3"
+                            style="width: 120px;" />
                         <button type="button" class="btn btn-sm btn-danger" onclick="eliminarFoto(@Model.Id)">
                             Eliminar
                         </button>

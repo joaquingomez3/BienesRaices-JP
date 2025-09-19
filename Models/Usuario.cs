@@ -12,7 +12,7 @@ namespace bienesraices.Models
         public string Email { get; set; } = "";
 
         [Display(Name = "Contraseña")]
-        public string Password { get; set; } = "";
+        public string? Password { get; set; }
         public int Id_tipo_usuario { get; set; }
         public bool Activo { get; set; }
 

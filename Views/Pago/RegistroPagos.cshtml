@@ -1,61 +1,134 @@
 @model IEnumerable<bienesraices.Models.Pago>
-    
+
 @{
-    ViewData["Title"] = "Pagos";
+    ViewData["Title"] = "Registro de Pagos";
 }
-<div class="container mb-5">
-<h2 class="mb-4">Registro de pagos</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>N° Pago</th>
-            <th>Fecha</th>
-            <th>Detalle</th>
-            <th>Importe</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if(Model != null && Model.Any())
-        {
-            @foreach (var pago in Model)
-             {
-            <tr>
-                <td>@pago.Numero_pago</td>
-                <td>@pago.Fecha_pago.ToString("dd/MM/yyyy")</td>
-                <td>@pago.Detalle</td>
-                <td>@pago.Importe.ToString("C")</td>
-                <td>@pago.Estado</td>
-                <td>
-                    <a asp-action="VerPago" asp-route-id="@pago.Id" class="btn btn-info btn-sm">
-                        <i class="fas fa-eye"></i> Ver
-                    </a>
-                    <a asp-action="EditarPago" asp-route-id="@pago.Id" class="btn btn-warning btn-sm">
-                        <i class="fas fa-edit"></i> Editar
-                    </a>
-                    <a asp-action="AnularPago" asp-route-id="@pago.Id" class="btn btn-danger btn-sm">
-                        <i class="fas fa-ban"></i> Anular
-                    </a>
-                </td>
-            </tr>
-            }
-        }
-        else
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="color: #bb4900;">
+            <i class="fas fa-history me-2"></i>
+            Registro de Pagos
+        </h2>
+        <a asp-controller="Pago" asp-action="Crear" asp-route-contratoId="@ViewBag.ContratoId"
+            class="btn fw-bold shadow-sm" style="background-color: #bb4900; color: white;">
+            <i class="fas fa-plus me-1"></i> Nuevo Pago
+        </a>
+    </div>
+
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-4">
+            @if (Model != null && Model.Any())
             {
-           
-            <tr>
-                <td colspan="6" class="text-center text-muted">
-                    <i class="bi bi-info-circle"></i> No hay pagos registrados para este contrato.
-                </td>
-            </tr>
-        }
-        
-    </tbody>
-</table>
-
-<a asp-action="CrearPago" asp-route-idContrato="@ViewBag.IdContrato" class="btn btn-success">
-    <i class="fas fa-plus"></i> Nuevo Pago
-</a>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>N° Pago</th>
+                                <th>Fecha</th>
+                                <th>Detalle</th>
+                                <th>Importe</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pago in Model)
+                            {
+                                // Class conditional for styling canceled payments.
+                                <tr class="@(pago.Estado == "Anulado" ? "table-danger" : "")">
+                                    <td>@pago.Numero_pago</td>
+                                    <td>@pago.Fecha_pago.ToString("dd/MM/yyyy")</td>
+                                    <td>@pago.Detalle</td>
+                                    <td>@pago.Importe.ToString("C")</td>
+                                    <td>
+                                        <span
+                                            class="badge rounded-pill @(pago.Estado == "Activo" ? "bg-success" : "bg-secondary")">
+                                            @pago.Estado
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            @if (User.IsInRole("admin"))
+                                            {
+                                                <a asp-action="VerPago" asp-route-id="@pago.Id" class="btn btn-info btn-sm"
+                                                    title="Ver Pago">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a asp-action="EditarPago" asp-route-id="@pago.Id" class="btn btn-warning btn-sm"
+                                                    title="Editar Pago">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a asp-action="Eliminar" asp-route-id="@pago.Id" class="btn btn-danger btn-sm"
+                                                    title="Anular Pago">
+                                                    <i class="fas fa-ban"></i>
+                                                </a>
+                                            }
+                                            else if (User.IsInRole("empleado"))
+                                            {
+                                                <a asp-action="VerPago" asp-route-id="@pago.Id" class="btn btn-info btn-sm"
+                                                    title="Ver Pago">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a asp-action="EditarPago" asp-route-id="@pago.Id" class="btn btn-warning btn-sm"
+                                                    title="Editar Pago">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-info-circle"></i> Sin Pagos</h4>
+                    <p>No hay pagos registrados para este contrato.</p>
+                </div>
+            }
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Confirmación de eliminación
+            $('.form-eliminar').on('submit', function (e) {
+                e.preventDefault();
+                const form = this;
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará un pago permanentemente.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#bb4900',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
+            // Alerta de éxito (si viene desde TempData)
+            @if (TempData["MensajeExito"] != null)
+                {
+                    <text>
+                        Swal.fire({
+                            icon: 'success',
+                        title: '¡Éxito!',
+                        text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
+                        confirmButtonColor: '#bb4900'
+                                                                                            });
+                    </text>
+            }
+                                            });
+    </script>
+}

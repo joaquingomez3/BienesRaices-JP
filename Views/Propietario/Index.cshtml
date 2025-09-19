@@ -36,18 +36,29 @@
                     <td>@propietario.Telefono</td>
                     <td>@propietario.Email</td>
                     <td>@propietario.Direccion</td>
+                    @if (User.IsInRole("admin"))
+                    {
+                        <td>
+                            <a asp-action="Editar" asp-route-id="@propietario.Id" class="btn btn-sm btn-warning me-1">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form asp-action="Eliminar" asp-route-id="@propietario.Id" method="post"
+                                class="d-inline form-eliminar">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    }
+                    else if (User.IsInRole("empleado"))
+                    {
+                        <td>
+                            <a asp-action="Editar" asp-route-id="@propietario.Id" class="btn btn-sm btn-warning me-1">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
 
-                    <td>
-                        <a asp-action="Editar" asp-route-id="@propietario.Id" class="btn btn-sm btn-warning me-1">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <form asp-action="Eliminar" asp-route-id="@propietario.Id" method="post"
-                            class="d-inline form-eliminar">
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                    </td>
+                        </td>
+                    }
                 </tr>
             }
         </tbody>
@@ -77,7 +88,7 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                                        });
+                                                                                });
                     </text>
             }
 
@@ -126,9 +137,9 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                            });
+                                                                    });
                     </text>
             }
-                            });
+                                });
     </script>
 }

@@ -57,6 +57,7 @@ public class UsuarioController : Controller
                 new Claim(ClaimTypes.Name, usuarioEncontrado.Nombre_usuario+ " "+usuarioEncontrado.Apellido_usuario),
                 new Claim(ClaimTypes.Role, usuarioEncontrado.RolUsuario.ToLower()), // Rol en minúsculas
                 new Claim(ClaimTypes.NameIdentifier, usuarioEncontrado.Id.ToString()),
+                new Claim("Foto", usuarioEncontrado.Foto ?? ""),
             };
                 if (!string.IsNullOrEmpty(usuarioEncontrado.Foto))
                 {
@@ -71,6 +72,10 @@ public class UsuarioController : Controller
                 return RedirectToAction("Index", "Home");
 
             }
+            else
+            {
+                ViewBag.Error = "Email o clave incorrectos";
+            }
 
         }
         else
@@ -81,10 +86,10 @@ public class UsuarioController : Controller
         return View();
     }
 
-    
 
+    [Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
     [HttpPost]
-    public async Task<IActionResult> CrearUsuario(Usuario usuario,IFormFile Foto)
+    public async Task<IActionResult> CrearUsuario(Usuario usuario, IFormFile Foto)
     {
         if (ModelState.IsValid)
         {
@@ -112,7 +117,7 @@ public class UsuarioController : Controller
 
             repoUsuario.Alta(usuario); // Método que guarda el usuario en la base
             TempData["MensajeExito"] = "Usuario creado con éxito ✅";
-            
+
 
         }
         return RedirectToAction("Index");
@@ -134,7 +139,7 @@ public class UsuarioController : Controller
         return View();
     }
 
-
+    [Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
     [HttpGet]
     public IActionResult Editar(int id)
     {
@@ -150,29 +155,75 @@ public class UsuarioController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Editar(Usuario usuario)
+    public async Task<IActionResult> Editar(Usuario usuario, IFormFile? Foto)
     {
-
         if (ModelState.IsValid)
         {
             var usuarioExistente = repoUsuario.ObtenerUsuarioPorId(usuario.Id);
 
             if (usuarioExistente != null)
             {
-                // Verificar si la contraseña ha cambiado
-                if (usuario.Password != usuarioExistente.Password)
+                // Actualizar campos que no son la contraseña
+                usuarioExistente.Nombre_usuario = usuario.Nombre_usuario;
+                usuarioExistente.Apellido_usuario = usuario.Apellido_usuario;
+                usuarioExistente.Email = usuario.Email;
+                usuarioExistente.Id_tipo_usuario = usuario.Id_tipo_usuario;
+                usuarioExistente.Activo = usuario.Activo;
+
+                // Si subió una nueva foto
+                if (Foto != null && Foto.Length > 0)
                 {
-                    var hasher = new PasswordHasher<Usuario>();
-                    usuario.Password = hasher.HashPassword(usuario, usuario.Password);
-                }
-                else
-                {
-                    usuario.Password = usuarioExistente.Password; // Mantener la contraseña existente
+                    var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    if (!Directory.Exists(uploads))
+                        Directory.CreateDirectory(uploads);
+
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Foto.FileName);
+                    var filePath = Path.Combine(uploads, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await Foto.CopyToAsync(stream);
+                    }
+
+                    // Opcional: borrar la foto anterior del servidor si existe
+                    if (!string.IsNullOrEmpty(usuarioExistente.Foto))
+                    {
+                        var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", usuarioExistente.Foto.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath))
+                            System.IO.File.Delete(oldPath);
+                    }
+
+                    usuarioExistente.Foto = "/uploads/" + fileName;
                 }
 
-                repoUsuario.ActualizarUsuario(usuario);
+                // Solo actualizar la contraseña si el usuario ingresó una nueva
+                if (!string.IsNullOrWhiteSpace(usuario.Password))
+                {
+                    var hasher = new PasswordHasher<Usuario>();
+                    usuarioExistente.Password = hasher.HashPassword(usuario, usuario.Password);
+                }
+
+                repoUsuario.ActualizarUsuario(usuarioExistente);
+                // si el usuario editado es el logueado, actualizamos las claims de la cookie para que el layout muestre la nueva foto
+                var currentId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(currentId) && currentId == usuarioExistente.Id.ToString())
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, usuarioExistente.Nombre_usuario + " " + usuarioExistente.Apellido_usuario),
+                        new Claim(ClaimTypes.Role, usuarioExistente.RolUsuario.ToLower()),
+                        new Claim(ClaimTypes.NameIdentifier, usuarioExistente.Id.ToString()),
+                        new Claim("Foto", usuarioExistente.Foto ?? "")
+                    };
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+                }
                 TempData["MensajeExito"] = "Usuario editado con éxito ✅";
-                return RedirectToAction(nameof(Index));
+                if (usuarioExistente.RolUsuario?.ToLower() == "empleado")
+                    return RedirectToAction("Index", "Home"); // acción Index del controlador Home
+                else
+                    return RedirectToAction(nameof(Index));   // acción Index de UsuarioController
+
             }
             else
             {
@@ -182,6 +233,26 @@ public class UsuarioController : Controller
 
         return View(usuario);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult EliminarFoto(int id)
+    {
+        var usuario = repoUsuario.ObtenerUsuarioPorId(id);
+        if (usuario != null && !string.IsNullOrEmpty(usuario.Foto))
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", usuario.Foto.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
+                System.IO.File.Delete(filePath);
+
+            usuario.Foto = null;
+            repoUsuario.ActualizarUsuario(usuario);
+            TempData["MensajeExito"] = "Foto eliminada con éxito ✅";
+        }
+
+        return RedirectToAction(nameof(Editar), new { id });
+    }
+
 
     public IActionResult Eliminar()
     {

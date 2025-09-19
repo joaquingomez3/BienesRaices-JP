@@ -1,0 +1,67 @@
+@model bienesraices.Models.Pago
+
+@{
+    ViewData["Title"] = "Registrar Pago";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header text-white d-flex justify-content-between align-items-center rounded-top-3"
+            style="background-color: #8a2e00;">
+            <h4 class="mb-0 fw-bold"><i class="fas fa-money-check-alt me-2"></i>Registrar Nuevo Pago</h4>
+            <a asp-action="RegistroPagos" asp-route-contratoId="@ViewBag.IdContrato"
+                class="btn btn-light btn-sm fw-bold">
+                <i class="fas fa-arrow-left me-1"></i> Volver a Pagos
+            </a>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Crear">
+                <input type="hidden" name="Id_contrato" value="@ViewBag.IdContrato" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="Fecha_pago" class="form-label fw-bold">Fecha del Pago</label>
+                        <input asp-for="Fecha_pago" type="date" class="form-control form-control-lg" />
+                        <span asp-validation-for="Fecha_pago" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Importe" class="form-label fw-bold">Importe</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">$</span>
+                            <input asp-for="Importe" type="number" class="form-control" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Importe" class="text-danger"></span>
+                        <div class="text-muted mt-1 small">Monto sugerido según contrato: <span
+                                class="fw-bold">@ViewBag.MontoContrato.ToString("C")</span></div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Detalle" class="form-label fw-bold">Detalle</label>
+                    <textarea asp-for="Detalle" class="form-control" rows="3"
+                        placeholder="Ej: Pago correspondiente al mes de Febrero"></textarea>
+                    <span asp-validation-for="Detalle" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-lg fw-bold shadow-sm"
+                        style="background-color: #bb4900; color: white;">
+                        <i class="fas fa-save me-1"></i> Guardar Pago
+                    </button>
+                    <a asp-action="RegistroPagos" asp-route-contratoId="@ViewBag.IdContrato"
+                        class="btn btn-outline-secondary btn-lg fw-bold">
+                        <i class="fas fa-times-circle me-1"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

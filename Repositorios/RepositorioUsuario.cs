@@ -132,33 +132,42 @@ public class RepositorioUsuario : RepositorioBase
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = "SELECT * FROM usuario WHERE id = @id";
+            var query = @"
+                SELECT u.id, u.nombre_usuario, u.apellido_usuario, u.email, u.password,
+                    u.id_tipo_usuario, u.activo, u.foto,
+                    t.rol_usuario
+            FROM usuario u
+            LEFT JOIN tipo_usuario t ON u.id_tipo_usuario = t.id_tipo_usuario
+            WHERE u.id = @id";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@id", id);
                 connection.Open();
 
-                var reader = command.ExecuteReader();
-                if (reader.Read())
+                using (var reader = command.ExecuteReader())
                 {
-                    return new Usuario
+                    if (reader.Read())
                     {
-                        Id = reader.GetInt32("id"),
-                        Nombre_usuario = reader.GetString("nombre_usuario"),
-                        Apellido_usuario = reader.GetString("apellido_usuario"),
-                        Email = reader.GetString("email"),
-                        Password = reader.GetString("password"),
-                        Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
-                        Activo = reader.GetBoolean("activo"),
-
-
-                    };
+                        return new Usuario
+                        {
+                            Id = reader.GetInt32("id"),
+                            Nombre_usuario = reader.GetString("nombre_usuario"),
+                            Apellido_usuario = reader.GetString("apellido_usuario"),
+                            Email = reader.GetString("email"),
+                            Password = reader.GetString("password"),
+                            Id_tipo_usuario = reader.GetInt32("id_tipo_usuario"),
+                            Activo = reader.GetBoolean("activo"),
+                            Foto = reader.IsDBNull(reader.GetOrdinal("foto")) ? null : reader.GetString("foto"),
+                            RolUsuario = reader.IsDBNull(reader.GetOrdinal("rol_usuario")) ? "" : reader.GetString("rol_usuario")
+                        };
+                    }
                 }
             }
         }
         return null;
     }
+
 
     public Usuario? ObtenerUsuarioPorEmail(string email)
     {

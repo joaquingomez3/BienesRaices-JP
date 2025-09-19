@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Forms;
-
-
+using Microsoft.AspNetCore.Authorization;
+[Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
 public class ContratoController : Controller
 {
     private readonly RepositorioContrato repoContrato;

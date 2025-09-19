@@ -93,4 +93,63 @@ public class RepositorioPago : RepositorioBase
         }
     }
 
+    public int Crear(Pago pago)
+    {
+        int id = 0; // Variable para almacenar el ID del pago recién insertado
+        using (var connection = new MySqlConnection(connectionString))
+        {
+            connection.Open();
+
+            // 1. Obtener el próximo número de pago para el contrato específico
+            var sqlObtenerProximoNumero = "SELECT IFNULL(MAX(Numero_pago), 0) + 1 FROM Pago WHERE Id_contrato = @Id_contrato;";
+            int proximoNumeroPago;
+            using (var commandGetNext = new MySqlCommand(sqlObtenerProximoNumero, connection))
+            {
+                commandGetNext.Parameters.AddWithValue("@Id_contrato", pago.Id_contrato);
+                proximoNumeroPago = Convert.ToInt32(commandGetNext.ExecuteScalar());
+            }
+
+            // 2. Insertar el nuevo pago en la base de datos
+            var sqlInsert = @"
+                INSERT INTO Pago (Id_contrato, Numero_pago, Fecha_pago, Detalle, Importe, Estado, Id_usuario_creador)
+                VALUES (@Id_contrato, @Numero_pago, @Fecha_pago, @Detalle, @Importe, 'PAGADO', @Id_usuario_creador);
+                
+                SELECT LAST_INSERT_ID();"; // Obtiene el ID del último registro insertado
+
+            using (var commandInsert = new MySqlCommand(sqlInsert, connection))
+            {
+                // Asignar los valores a los parámetros de la consulta
+                commandInsert.Parameters.AddWithValue("@Id_contrato", pago.Id_contrato);
+                commandInsert.Parameters.AddWithValue("@Numero_pago", proximoNumeroPago);
+                commandInsert.Parameters.AddWithValue("@Fecha_pago", pago.Fecha_pago);
+                commandInsert.Parameters.AddWithValue("@Detalle", pago.Detalle ?? "");
+                commandInsert.Parameters.AddWithValue("@Importe", pago.Importe);
+                commandInsert.Parameters.AddWithValue("@Id_usuario_creador", pago.Id_usuario_creador);
+
+                // Ejecutar la consulta y obtener el ID del pago creado
+                id = Convert.ToInt32(commandInsert.ExecuteScalar());
+            }
+        }
+        return id;
+    }
+
+
+    public int Eliminar(int id)
+    {
+        int filasAfectadas = 0;
+        using (var connection = new MySqlConnection(connectionString))
+        {
+            connection.Open();
+
+            var sqlDelete = "DELETE FROM Pago WHERE Id = @Id";
+
+            using (var commandDelete = new MySqlCommand(sqlDelete, connection))
+            {
+                commandDelete.Parameters.AddWithValue("@Id", id);
+
+                filasAfectadas = commandDelete.ExecuteNonQuery();
+            }
+        }
+        return filasAfectadas;
+    }
 }
