@@ -75,7 +75,7 @@
             <i class="bi bi-plus-lg"></i> Nuevo Inmueble
         </a>
     </div>
-
+   
     <div class="row">
         <div class="col-lg-3 col-md-4 mb-4">
             <div class="card shadow-sm h-100">
@@ -123,6 +123,21 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row g-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="date" name="fechaDesde" value="@ViewBag.FiltroFechaDesde" class="form-control" id="fechaDesdeInput">
+                                    <label for="fechaDesdeInput">Fecha desde</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="date" name="fechaHasta" value="@ViewBag.FiltroFechaHasta" class="form-control" id="fechaHastaInput">
+                                    <label for="fechaHastaInput">Fecha hasta</label>
+                                </div>
+                            </div>
+                        </div>
+
 
                         <div class="d-grid gap-2 mt-3">
                             <button type="submit" class="btn btn-primary btn-lg">
@@ -180,28 +195,53 @@
                                         <hr class="mt-2 mb-2"/>
                                     </div>
                                 </div>
-                                <div class="card-footer d-flex justify-content-between align-items-center bg-transparent border-0 pt-0 pb-3">
-                                    @if(User.IsInRole("admin")){
-                                    <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-square"></i> Editar
-                                    </a>
-                                    <form asp-action="Eliminar" asp-route-id="@inmueble.Id" method="post" class="d-inline form-eliminar">
-                                        <button type="submit" class="btn btn-danger btn-sm">
-                                            <i class="bi bi-trash"></i> Eliminar
-                                        </button>
-                                    </form>
-                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalInmueble-@inmueble.Id">
-                                        <i class="bi bi-image"></i> Ver Fotos
-                                    </button>
-                                    }
-                                    else @if (User.IsInRole("empleado"))
+                                <div class="card-footer bg-transparent border-0 pt-0 pb-3">
+                                    @if(User.IsInRole("admin"))
                                     {
-                                        <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-square"></i> Editar
-                                        </a> 
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalInmueble-@inmueble.Id">
-                                        <i class="bi bi-image"></i> Ver Fotos
-                                        </button>
+                                    <div class="d-flex flex-column gap-2 w-100">
+                                        <div class="d-flex justify-content-between gap-2">
+                                            
+                                            <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-outline-primary btn-sm flex-fill">
+                                                <i class="bi bi-pencil-square"></i> Editar
+                                            </a>
+                                            <a asp-controller="Contrato" asp-action="Crear" asp-route-idInmueble="@inmueble.Id" class="btn btn-success btn-sm flex-fill">
+                                                <i class="bi bi-file-earmark-text"></i> Crear Contrato
+                                            </a>
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between gap-2">
+                                            
+                                            <form asp-action="Eliminar" asp-route-id="@inmueble.Id" method="post" class="d-inline form-eliminar flex-fill">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                                    <i class="bi bi-trash"></i> Eliminar
+                                                </button>
+                                            </form>
+                                            
+                                            <button type="button" class="btn btn-outline-info btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#modalInmueble-@inmueble.Id">
+                                                <i class="bi bi-image"></i> Ver Fotos
+                                            </button>
+                                        </div>
+                                    </div>
+                                    }
+                                    else{
+                                        <div class="d-flex flex-column gap-2 w-100">
+                                        <div class="d-flex justify-content-between gap-2">
+                                            
+                                            <a asp-action="Editar" asp-route-id="@inmueble.Id" class="btn btn-outline-primary btn-sm flex-fill">
+                                                <i class="bi bi-pencil-square"></i> Editar
+                                            </a>
+                                            <a asp-controller="Contrato" asp-action="Crear" asp-route-id="@inmueble.Id" class="btn btn-success btn-sm flex-fill">
+                                                <i class="bi bi-file-earmark-text"></i> Crear Contrato
+                                            </a>
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between gap-2">
+                                            
+                                            <button type="button" class="btn btn-outline-info btn-sm flex-fill" data-bs-toggle="modal" data-bs-target="#modalInmueble-@inmueble.Id">
+                                                <i class="bi bi-image"></i> Ver Fotos
+                                            </button>
+                                        </div>
+                                    </div>
                                     }
                                 </div>
                             </div>

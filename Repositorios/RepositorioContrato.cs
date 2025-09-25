@@ -173,48 +173,42 @@ public class RepositorioContrato : RepositorioBase
 
     }
 
-    public decimal CalcularMulta(int id_contrato)
+    public void ActualizarContrato(Contrato contrato)
     {
-        decimal multa = 0;
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
-            var query = @"
-                    SELECT c.id, c.fechaInicio, c.fechaFin, c.Monto_mensual
-                    FROM Contrato c
-                    WHERE c.Id = @idContrato;
-                ";
+            var query = @"UPDATE contrato SET 
+                          id_inquilino = @id_inquilino,
+                          id_inmueble = @id_inmueble,
+                          fecha_inicio = @fecha_inicio,
+                          fecha_fin = @fecha_fin,
+                          estado = @estado,
+                          fecha_terminacion = @fecha_terminacion,
+                          monto_mensual = @monto_mensual,
+                          id_usuario_creador = @id_usuario_creador,
+                          id_usuario_finalizador = @id_usuario_finalizador,
+                          multa = @multa
+                          WHERE id = @id";
+
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@id_contrato", id_contrato);
+                command.Parameters.AddWithValue("@id", contrato.Id);
+                command.Parameters.AddWithValue("@id_inquilino", contrato.Id_inquilino);
+                command.Parameters.AddWithValue("@id_inmueble", contrato.Id_inmueble);
+                command.Parameters.AddWithValue("@fecha_inicio", contrato.Fecha_inicio);
+                command.Parameters.AddWithValue("@fecha_fin", contrato.Fecha_fin);
+                command.Parameters.AddWithValue("@estado", string.IsNullOrEmpty(contrato.Estado) ? "Rescindido" : contrato.Estado);
+                command.Parameters.AddWithValue("@fecha_terminacion", contrato.Fecha_terminacion ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@monto_mensual", contrato.Monto_mensual);
+                command.Parameters.AddWithValue("@id_usuario_creador", contrato.Id_usuario_creador);
+                command.Parameters.AddWithValue("@id_usuario_finalizador", contrato.Id_usuario_finalizador ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@multa", contrato.Multa ?? (object)DBNull.Value);
+
                 connection.Open();
-
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        DateTime fechaInicio = reader.GetDateTime("FechaInicio");
-                        DateTime fechaFin = reader.GetDateTime("FechaFin");
-                        decimal montoMensual = reader.GetDecimal("MontoAlquilerMensual");
-
-                        DateTime fechaRescicion = DateTime.Now;
-                        int totalMeses = (fechaFin.Year - fechaInicio.Year) * 12 + (fechaFin.Month - fechaInicio.Month);
-                        int mesesTranscurridos = ((fechaRescicion.Year - fechaInicio.Year) * 12) + fechaRescicion.Month - fechaInicio.Month;
-
-                        if (mesesTranscurridos > totalMeses / 2)
-                        {
-                            multa = montoMensual * 2;
-                        }
-                        else
-                        {
-                            multa = montoMensual * 1;
-
-                        }
-
-                    }
-                }
+                command.ExecuteNonQuery();
+                connection.Close();
             }
         }
-        return multa;
     }
 
     public void CrearContrato(Contrato contrato)
@@ -257,6 +251,32 @@ public class RepositorioContrato : RepositorioBase
             }
         }
     }
+
+    public bool ExisteContratoActivoEnRango(int idInmueble, DateTime nuevoInicio, DateTime nuevoFin)
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var query = @"
+                SELECT COUNT(*) 
+                FROM contrato 
+                WHERE id_inmueble = @idInmueble 
+                AND estado = 'Vigente'
+                AND @nuevoInicio <= fecha_fin 
+                AND @nuevoFin >= fecha_inicio";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                command.Parameters.AddWithValue("@nuevoInicio", nuevoInicio);
+                command.Parameters.AddWithValue("@nuevoFin", nuevoFin);
+
+                connection.Open();
+                int count = Convert.ToInt32(command.ExecuteScalar());
+                return count > 0;
+            }
+        }
+    }
+
 
 
 }

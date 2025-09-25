@@ -36,11 +36,14 @@ public class InmuebleController : Controller
     string? tipo = null,
     string? ambientes = null,
     decimal? precioMin = null,
-    decimal? precioMax = null)
+    decimal? precioMax = null,
+    DateTime? fechaDesde = null,
+    DateTime? fechaHasta = null)
+
     {
         page = page < 1 ? 1 : page;
 
-        // 🔹 traer datos paginados con filtros
+        // traer datos paginados con filtros
         var inmuebles = await repoInmueble.InmueblesFiltrados(
             page,
             pageSize,
@@ -50,10 +53,12 @@ public class InmuebleController : Controller
             tipo,
             ambientes,
             precioMin,
-            precioMax
+            precioMax,
+            fechaDesde,
+            fechaHasta
         );
 
-        // 🔹 contar total con filtros
+        //  contar total con filtros
         var totalInmuebles = await repoInmueble.ContarInmuebles(
             propietario,
             estado,
@@ -61,20 +66,22 @@ public class InmuebleController : Controller
             tipo,
             ambientes,
             precioMin,
-            precioMax
+            precioMax,
+            fechaDesde,
+            fechaHasta
         );
 
-        // 🔹 cargar fotos de cada inmueble
+        // cargar fotos de cada inmueble
         foreach (var inmueble in inmuebles)
         {
             inmueble.Fotos = repoFoto.ObtenerFotosPorInmuebleId(inmueble.Id);
         }
 
-        // 🔹 paginación
+        // paginación
         ViewBag.TotalPages = (int)Math.Ceiling((double)totalInmuebles / pageSize);
         ViewBag.CurrentPage = page;
 
-        // 🔹 filtros para mantenerlos en la vista
+        // filtros para mantenerlos en la vista
         ViewBag.FiltroPropietario = propietario;
         ViewBag.FiltroEstado = estado;
         ViewBag.FiltroUso = uso;
@@ -82,7 +89,8 @@ public class InmuebleController : Controller
         ViewBag.FiltroAmbientes = ambientes;
         ViewBag.FiltroPrecioMin = precioMin;
         ViewBag.FiltroPrecioMax = precioMax;
-
+        ViewBag.FiltroFechaDesde = fechaDesde?.ToString("yyyy-MM-dd");
+        ViewBag.FiltroFechaHasta = fechaHasta?.ToString("yyyy-MM-dd");
         return View(inmuebles);
     }
 

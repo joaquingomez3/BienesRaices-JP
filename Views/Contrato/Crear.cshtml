@@ -6,6 +6,21 @@
 }
 <div class="container mt-5">
     <h2 class="mb-4 text-center">➕ Crear Contrato</h2>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div>@error.ErrorMessage</div>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    }
+
     <form asp-action="Crear" method="post" class="shadow-lg p-4 rounded bg-light">
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -22,11 +37,10 @@
 
             <!-- Inmueble -->
             <div class="col-md-6">
-                <label asp-for="Id_inmueble" class="form-label fw-bold"></label>
-                <select asp-for="Id_inmueble" id="inmuebleSelect" class="form-select" asp-items="ViewBag.Inmuebles">
-                    <option value="">Seleccionar inmueble...</option>
-                </select>
-                <span asp-validation-for="Id_inmueble" class="text-danger"></span>
+                <label class="form-label fw-bold">Inmueble</label>
+                <input type="text" class="form-control" value="@ViewBag.InmuebleNombre" readonly />
+                <input asp-for="Id_inmueble" type="hidden" />
+                <span class="text-muted">DEBUG Id_inmueble: @Model?.Id_inmueble</span>
             </div>
 
             <!-- Fecha de Inicio -->
@@ -48,18 +62,17 @@
                 <label asp-for="Monto_mensual" class="form-label fw-bold"></label>
                 <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input id="montoMensualDisplay" type="text" class="form-control" readonly />
+                    <input type="text" class="form-control" value="@ViewBag.MontoMensual" readonly />
                 </div>
             </div>
 
-            <input asp-for="Monto_mensual" type="hidden" id="montoMensualReal" />
+            <input asp-for="Monto_mensual" type="hidden" value="@ViewBag.MontoMensual" />
 
 
-
-             <!--Estado (oculto) -->
+            <!--Estado (oculto) -->
             <input asp-for="Estado" type="hidden" value="Vigente" />
 
-             
+
 
 
 
@@ -117,4 +130,3 @@
         });
     });
 </script>
-

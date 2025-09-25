@@ -10,10 +10,18 @@
             <i class="fas fa-history me-2"></i>
             Registro de Pagos
         </h2>
-        <a asp-controller="Pago" asp-action="Crear" asp-route-contratoId="@ViewBag.ContratoId"
-            class="btn fw-bold shadow-sm" style="background-color: #bb4900; color: white;">
-            <i class="fas fa-plus me-1"></i> Nuevo Pago
-        </a>
+        <!-- Contenedor para los botones -->
+        <div class="d-flex gap-2">
+            <a asp-controller="Pago" asp-action="Index" class="btn fw-bold shadow-sm"
+                style="background-color: #5f5f5f; color: white;">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+
+            <a asp-controller="Pago" asp-action="Crear" asp-route-contratoId="@ViewBag.ContratoId"
+                class="btn fw-bold shadow-sm" style="background-color: #bb4900; color: white;">
+                <i class="fas fa-plus me-1"></i> Nuevo Pago
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-lg border-0">
@@ -29,6 +37,7 @@
                                 <th>Detalle</th>
                                 <th>Importe</th>
                                 <th>Estado</th>
+                                <th>Anulador</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -42,39 +51,57 @@
                                     <td>@pago.Detalle</td>
                                     <td>@pago.Importe.ToString("C")</td>
                                     <td>
-                                        <span
-                                            class="badge rounded-pill @(pago.Estado == "Activo" ? "bg-success" : "bg-secondary")">
-                                            @pago.Estado
-                                        </span>
+                                        @if (pago.Estado == "Activo")
+                                        {
+                                            <span class="badge rounded-pill bg-success">Activo</span>
+                                        }
+                                        else if (pago.Estado == "ANULADO")
+                                        {
+                                            <span class="badge rounded-pill bg-danger">Anulado</span>
+                                        }
+                                        else if (pago.Estado == "PAGADO")
+                                        {
+                                            <span class="badge rounded-pill bg-primary">Pagado</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-secondary">@pago.Estado</span>
+                                        }
                                     </td>
+                                    @if (pago.Estado == "ANULADO")
+                                    {
+                                        <td> @pago.Anulador</td>
+                                    }
+                                    else
+                                    {
+                                        <td>--</td>
+                                    }
                                     <td>
                                         <div class="d-flex justify-content-center gap-2">
                                             @if (User.IsInRole("admin"))
                                             {
-                                                <a asp-action="VerPago" asp-route-id="@pago.Id" class="btn btn-info btn-sm"
-                                                    title="Ver Pago">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a asp-action="EditarPago" asp-route-id="@pago.Id" class="btn btn-warning btn-sm"
-                                                    title="Editar Pago">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a asp-action="Eliminar" asp-route-id="@pago.Id" class="btn btn-danger btn-sm"
-                                                    title="Anular Pago">
-                                                    <i class="fas fa-ban"></i>
-                                                </a>
+
+                                                @if (pago.Estado == "Activo" || pago.Estado == "PAGADO")
+                                                {
+                                                    <form asp-action="Anular" asp-route-id="@pago.Id" method="post"
+                                                        class="d-inline form-anular">
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Anular Pago">
+                                                            <i class="fas fa-ban"></i> Anular
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else if (pago.Estado == "ANULADO")
+                                                {
+                                                    <form asp-action="Restaurar" asp-route-id="@pago.Id" method="post"
+                                                        class="d-inline form-restaurar">
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Restaurar Pago">
+                                                            <i class="fas fa-undo"></i> Restaurar
+                                                        </button>
+                                                    </form>
+                                                }
+
                                             }
-                                            else if (User.IsInRole("empleado"))
-                                            {
-                                                <a asp-action="VerPago" asp-route-id="@pago.Id" class="btn btn-info btn-sm"
-                                                    title="Ver Pago">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a asp-action="EditarPago" asp-route-id="@pago.Id" class="btn btn-warning btn-sm"
-                                                    title="Editar Pago">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            }
+
                                         </div>
                                     </td>
                                 </tr>
@@ -98,12 +125,12 @@
     <script>
         $(function () {
             // Confirmación de eliminación
-            $('.form-eliminar').on('submit', function (e) {
+            $('.form-anular').on('submit', function (e) {
                 e.preventDefault();
                 const form = this;
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: "Esta acción eliminará un pago permanentemente.",
+                    text: "Esta acción anulara un pago permanentemente.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#bb4900',
@@ -126,9 +153,49 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                                                            });
+                                                                                                                                                                                                                                                    });
                     </text>
             }
-                                            });
+                                                                                                                        });
+
+        // Confirmación de restaurar
+        $(function () {
+            // Confirmación para anular
+            $('.form-anular').on('submit', function (e) {
+                e.preventDefault();
+                const form = this;
+                Swal.fire({
+                    title: '¿Anular pago?',
+                    text: "El pago pasará a estado 'Anulado'.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#bb4900',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, anular',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit();
+                });
+            });
+
+            // Confirmación para restaurar
+            $('.form-restaurar').on('submit', function (e) {
+                e.preventDefault();
+                const form = this;
+                Swal.fire({
+                    title: '¿Restaurar pago?',
+                    text: "El pago volverá a estado 'Activo'.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, restaurar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit();
+                });
+            });
+        });
+
     </script>
 }

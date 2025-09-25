@@ -95,11 +95,36 @@ public class PagoController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Eliminar(int id)
+    public IActionResult Anular(int id)
     {
-        repoPago.Eliminar(id);
-        TempData["MensajeExito"] = "Pago eliminado correctamente.";
-        return RedirectToAction("RegistroPagos");
+        var pago = repoPago.ObtenerPagoPorId(id);
+        if (pago == null) return NotFound();
+        var idUsuarioStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(idUsuarioStr, out int idUsuario))
+        {
+            pago.Id_usuario_anulador = idUsuario;
+        }
+
+        // Cambiar estado
+        pago.Estado = "ANULADO";
+        repoPago.Actualizar(pago);
+
+        TempData["MensajeExito"] = "El pago fue anulado correctamente.";
+        return RedirectToAction("RegistroPagos", new { contratoId = pago.Id_contrato });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Restaurar(int id)
+    {
+        var pago = repoPago.ObtenerPagoPorId(id);
+        if (pago == null) return NotFound();
+
+        pago.Estado = "PAGADO";
+        repoPago.Actualizar(pago);
+
+        TempData["MensajeExito"] = "El pago fue restaurado correctamente.";
+        return RedirectToAction("RegistroPagos", new { contratoId = pago.Id_contrato });
     }
 
 }

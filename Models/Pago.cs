@@ -12,6 +12,6 @@ namespace bienesraices.Models
         public int Id_usuario_creador { get; set; }
         public int? Id_usuario_anulador { get; set; }
 
-
+        public string? Anulador { get; set; }
     }
 }

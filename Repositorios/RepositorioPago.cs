@@ -34,11 +34,25 @@ public class RepositorioPago : RepositorioBase
             await connection.OpenAsync();
 
             var query = @"
-        SELECT Id, Id_contrato, Numero_pago, Fecha_pago, Detalle, Importe, Estado, 
-               Id_usuario_creador, Id_usuario_anulador
-        FROM pago
+        SELECT 
+            p.Id,
+            p.Id_contrato,
+            p.Numero_pago,
+            p.Fecha_pago,
+            p.Detalle,
+            p.Importe,
+            p.Estado,
+            p.Id_usuario_creador,
+            p.Id_usuario_anulador,
+            CONCAT(uc.apellido_usuario, ' ', uc.nombre_usuario) AS creador,
+            CONCAT(ua.apellido_usuario, ' ', ua.nombre_usuario) AS anulador
+        
+        FROM pago p
+        JOIN contrato c ON c.id = p.Id_contrato
+        JOIN usuario uc ON uc.id = p.Id_usuario_creador
+        LEFT JOIN usuario ua ON ua.id = p.Id_usuario_anulador
         WHERE Id_contrato = @IdContrato
-        ORDER BY Id
+        ORDER BY p.Id
         LIMIT @PageSize OFFSET @Offset";
 
             using (MySqlCommand command = new MySqlCommand(query, connection))
@@ -63,7 +77,10 @@ public class RepositorioPago : RepositorioBase
                             Id_usuario_creador = reader.GetInt32(reader.GetOrdinal("Id_usuario_creador")),
                             Id_usuario_anulador = reader.IsDBNull(reader.GetOrdinal("Id_usuario_anulador"))
                                                   ? null
-                                                  : reader.GetInt32(reader.GetOrdinal("Id_usuario_anulador"))
+                                                  : reader.GetInt32(reader.GetOrdinal("Id_usuario_anulador")),
+                            Anulador = reader.IsDBNull(reader.GetOrdinal("Anulador"))
+                                                  ? null
+                                                  : reader.GetString(reader.GetOrdinal("Anulador"))
                         });
                     }
                 }
@@ -134,22 +151,82 @@ public class RepositorioPago : RepositorioBase
     }
 
 
-    public int Eliminar(int id)
+    public Pago ObtenerPagoPorId(int id)
     {
-        int filasAfectadas = 0;
-        using (var connection = new MySqlConnection(connectionString))
+        Pago pago = null;
+
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
             connection.Open();
 
-            var sqlDelete = "DELETE FROM Pago WHERE Id = @Id";
+            var query = @"
+        SELECT Id, Id_contrato, Numero_pago, Fecha_pago, Detalle, Importe, Estado, 
+               Id_usuario_creador, Id_usuario_anulador
+        FROM pago
+        WHERE Id = @Id";
 
-            using (var commandDelete = new MySqlCommand(sqlDelete, connection))
+            using (MySqlCommand command = new MySqlCommand(query, connection))
             {
-                commandDelete.Parameters.AddWithValue("@Id", id);
+                command.Parameters.AddWithValue("@Id", id);
 
-                filasAfectadas = commandDelete.ExecuteNonQuery();
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        pago = new Pago
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Id_contrato = reader.GetInt32(reader.GetOrdinal("Id_contrato")),
+                            Numero_pago = reader.GetInt32(reader.GetOrdinal("Numero_pago")),
+                            Fecha_pago = reader.GetDateTime(reader.GetOrdinal("Fecha_pago")),
+                            Detalle = reader.GetString(reader.GetOrdinal("Detalle")),
+                            Importe = reader.GetDecimal(reader.GetOrdinal("Importe")),
+                            Estado = reader.GetString(reader.GetOrdinal("Estado")),
+                            Id_usuario_creador = reader.GetInt32(reader.GetOrdinal("Id_usuario_creador")),
+                            Id_usuario_anulador = reader.IsDBNull(reader.GetOrdinal("Id_usuario_anulador"))
+                                                  ? null
+                                                  : reader.GetInt32(reader.GetOrdinal("Id_usuario_anulador"))
+                        };
+                    }
+                }
             }
         }
-        return filasAfectadas;
+
+        return pago;
+    }
+
+    public void Actualizar(Pago pago)
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            connection.Open();
+
+            var query = @"
+        UPDATE pago
+        SET Id_contrato = @Id_contrato,
+            Numero_pago = @Numero_pago,
+            Fecha_pago = @Fecha_pago,
+            Detalle = @Detalle,
+            Importe = @Importe,
+            Estado = @Estado,
+            Id_usuario_creador = @Id_usuario_creador,
+            Id_usuario_anulador = @Id_usuario_anulador
+        WHERE Id = @Id";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@Id", pago.Id);
+                command.Parameters.AddWithValue("@Id_contrato", pago.Id_contrato);
+                command.Parameters.AddWithValue("@Numero_pago", pago.Numero_pago);
+                command.Parameters.AddWithValue("@Fecha_pago", pago.Fecha_pago);
+                command.Parameters.AddWithValue("@Detalle", pago.Detalle ?? "");
+                command.Parameters.AddWithValue("@Importe", pago.Importe);
+                command.Parameters.AddWithValue("@Estado", pago.Estado);
+                command.Parameters.AddWithValue("@Id_usuario_creador", pago.Id_usuario_creador);
+                command.Parameters.AddWithValue("@Id_usuario_anulador", (object)pago.Id_usuario_anulador ?? DBNull.Value);
+
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }

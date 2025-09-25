@@ -137,7 +137,9 @@ public class RepositorioInmueble : RepositorioBase
     string? tipo,
     string? ambientes,
     decimal? precioMin,
-    decimal? precioMax)
+    decimal? precioMax,
+    DateTime? fechaDesde,
+    DateTime? fechaHasta)
     {
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
@@ -173,6 +175,17 @@ public class RepositorioInmueble : RepositorioBase
             if (precioMax.HasValue)
                 query += " AND i.precio <= @precioMax";
 
+            // Filtro de fechas: excluir inmuebles que tengan contratos solapados
+            if (fechaDesde.HasValue && fechaHasta.HasValue)
+            {
+                query += @"
+                    AND i.Id NOT IN (
+                        SELECT c.id_inmueble
+                        FROM Contrato c
+                        WHERE (c.fecha_inicio <= @fechaHasta) AND (c.fecha_fin >= @fechaDesde)
+                    )";
+            }
+
             using (var command = new MySqlCommand(query, connection))
             // 🔹 asignación de parámetros (previene SQL Injection)
             {
@@ -197,6 +210,16 @@ public class RepositorioInmueble : RepositorioBase
                 if (precioMax.HasValue)
                     command.Parameters.AddWithValue("@precioMax", precioMax);
 
+                if (fechaDesde.HasValue)
+                {
+                    command.Parameters.AddWithValue("@fechaDesde", fechaDesde.Value.ToString("yyyy-MM-dd"));
+
+                }
+                if (fechaHasta.HasValue)
+                {
+                    command.Parameters.AddWithValue("@fechaHasta", fechaHasta.Value.ToString("yyyy-MM-dd"));
+                }
+
                 var result = await command.ExecuteScalarAsync();
                 return Convert.ToInt32(result);
             }
@@ -213,7 +236,9 @@ public class RepositorioInmueble : RepositorioBase
         string? tipo,
         string? ambientes,
         decimal? precioMin,
-        decimal? precioMax)
+        decimal? precioMax,
+        DateTime? fechaDesde,
+        DateTime? fechaHasta)
     {
         var lista = new List<Inmueble>();
 
@@ -239,7 +264,7 @@ public class RepositorioInmueble : RepositorioBase
             WHERE i.estado <> 0
         ";
 
-            // 🔹 filtros dinámicos
+            // filtros dinámicos
             if (!string.IsNullOrEmpty(propietario))
                 query += " AND (p.apellido LIKE @prop OR p.nombre LIKE @prop)";
 
@@ -260,6 +285,18 @@ public class RepositorioInmueble : RepositorioBase
 
             if (precioMax.HasValue)
                 query += " AND i.precio <= @precioMax";
+
+            // Filtro de fechas: excluir inmuebles que tengan contratos solapados
+            if (fechaDesde.HasValue && fechaHasta.HasValue)
+            {
+                query += @"
+                    AND i.Id NOT IN (
+                        SELECT c.id_inmueble
+                        FROM Contrato c
+                        WHERE (c.fecha_inicio <= @fechaHasta) AND (c.fecha_fin >= @fechaDesde)
+                    )";
+            }
+
 
             query += @" ORDER BY i.id
                     LIMIT @PageSize OFFSET @Offset";
@@ -286,6 +323,16 @@ public class RepositorioInmueble : RepositorioBase
 
                 if (precioMax.HasValue)
                     command.Parameters.AddWithValue("@precioMax", precioMax);
+
+                if (fechaDesde.HasValue)
+                {
+                    command.Parameters.AddWithValue("@fechaDesde", fechaDesde.Value.ToString("yyyy-MM-dd"));
+
+                }
+                if (fechaHasta.HasValue)
+                {
+                    command.Parameters.AddWithValue("@fechaHasta", fechaHasta.Value.ToString("yyyy-MM-dd"));
+                }
 
                 command.Parameters.AddWithValue("@PageSize", pageSize);
                 command.Parameters.AddWithValue("@Offset", (page - 1) * pageSize);
