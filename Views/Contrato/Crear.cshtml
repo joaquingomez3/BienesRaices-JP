@@ -40,20 +40,22 @@
                 <label class="form-label fw-bold">Inmueble</label>
                 <input type="text" class="form-control" value="@ViewBag.InmuebleNombre" readonly />
                 <input asp-for="Id_inmueble" type="hidden" />
-                <span class="text-muted">DEBUG Id_inmueble: @Model?.Id_inmueble</span>
+
             </div>
 
             <!-- Fecha de Inicio -->
             <div class="col-md-6">
                 <label asp-for="Fecha_inicio" class="form-label fw-bold"></label>
-                <input asp-for="Fecha_inicio" type="date" class="form-control" />
+                <input asp-for="Fecha_inicio" type="date" class="form-control"
+                    value="@(Model.Fecha_inicio == DateTime.MinValue ? "" : Model.Fecha_inicio.ToString("yyyy-MM-dd"))" />
                 <span asp-validation-for="Fecha_inicio" class="text-danger"></span>
             </div>
 
             <!-- Fecha de Fin -->
             <div class="col-md-6">
                 <label asp-for="Fecha_fin" class="form-label fw-bold"></label>
-                <input asp-for="Fecha_fin" type="date" class="form-control" />
+                <input asp-for="Fecha_fin" type="date" class="form-control"
+                    value="@(Model.Fecha_fin == DateTime.MinValue ? "" : Model.Fecha_fin.ToString("yyyy-MM-dd"))" />
                 <span asp-validation-for="Fecha_fin" class="text-danger"></span>
             </div>
 

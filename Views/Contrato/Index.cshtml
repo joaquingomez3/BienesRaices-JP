@@ -116,6 +116,7 @@
                     <div class="mb-3">
                         <label class="form-label">Multa Calculada</label>
                         <input type="text" class="form-control" id="multaCalculada" readonly />
+                        <input type="hidden" name="Multa" id="multaHidden" />
                     </div>
 
                 </div>
@@ -160,10 +161,10 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                                                                                    });
+                                                                                                                                    });
                     </text>
             }
-                                                        });
+                                                                });
     </script>
     <script>
 
@@ -189,29 +190,29 @@
             $("#modalRescindir").modal("show");
         });
 
-        // Calcular multa cuando cambia la fecha de rescisión
+        // ✅ Calcular multa en el backend por AJAX
         $(document).on("change", "input[name='FechaRescision']", function () {
-            const fechaRescision = new Date($(this).val());
-            if (!fechaRescision || isNaN(fechaRescision)) return;
+            const fechaRescision = $(this).val();
+            const idContrato = $("#contratoId").val();
 
-            // Duración total en meses (aprox)
-            const diasTotales = (fechaFinGlobal - fechaInicioGlobal) / (1000 * 60 * 60 * 24);
-            const mesesTotales = diasTotales / 30;
-            const mitadDuracion = mesesTotales / 2;
+            if (!fechaRescision) return;
 
-            // Meses restantes desde la rescisión hasta el fin original
-            const diasRestantes = (fechaFinGlobal - fechaRescision) / (1000 * 60 * 60 * 24);
-            const mesesRestantes = diasRestantes / 30;
-
-            // Calcular multa igual que en backend
-            let multa = montoMensualGlobal * mesesRestantes;
-            if (mesesRestantes < mitadDuracion) {
-                multa += montoMensualGlobal * 2;
-            } else {
-                multa += montoMensualGlobal;
-            }
-
-            $("#multaCalculada").val(`$ ${multa.toFixed(2)}`);
+            $.ajax({
+                url: '/Contrato/CalcularMulta',   // Acción que creaste en el controlador
+                type: 'POST',
+                data: { idContrato: idContrato, fechaRescision: fechaRescision },
+                success: function (data) {
+                    if (data && data.multa !== undefined) {
+                        $("#multaCalculada").val(`$ ${parseFloat(data.multa).toFixed(2)}`);
+                        $("#multaHidden").val(data.multa); // guardo en hidden para mandarlo al servidor
+                    } else {
+                        $("#multaCalculada").val("Error al calcular");
+                    }
+                },
+                error: function () {
+                    $("#multaCalculada").val("Error al calcular");
+                }
+            });
         });
     </script>
 

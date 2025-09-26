@@ -13,6 +13,8 @@
     // Nota: precioMin/Max vienen como decimal? desde el controlador → ToString() para mostrarlos
     var filtroPrecioMin = ViewBag.FiltroPrecioMin != null ? ViewBag.FiltroPrecioMin.ToString() : "";
     var filtroPrecioMax = ViewBag.FiltroPrecioMax != null ? ViewBag.FiltroPrecioMax.ToString() : "";
+    var filtroFechaDesde = ViewBag.FiltroFechaDesde != null ? ViewBag.FiltroFechaDesde.ToString() : "";
+    var filtroFechaHasta = ViewBag.FiltroFechaHasta != null ? ViewBag.FiltroFechaHasta.ToString() : "";
     var estados = new List<SelectListItem>
     {
         new SelectListItem { Text = "Estado: Todos", Value = "" },
@@ -318,7 +320,9 @@
                                     tipo = filtroTipo,
                                     ambientes = filtroAmbientes,
                                     precioMin = filtroPrecioMin,
-                                    precioMax = filtroPrecioMax
+                                    precioMax = filtroPrecioMax,
+                                    fechaDesde = filtroFechaDesde,
+                                    fechaHasta = filtroFechaHasta
                                 })">@i</a>
                     </li>
                 }

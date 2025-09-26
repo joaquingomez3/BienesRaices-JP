@@ -235,7 +235,7 @@ public class UsuarioController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+
     public IActionResult EliminarFoto(int id)
     {
         var usuario = repoUsuario.ObtenerUsuarioPorId(id);

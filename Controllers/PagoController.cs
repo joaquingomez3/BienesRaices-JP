@@ -46,6 +46,12 @@ public class PagoController : Controller
         var totalContratos = await repoContrato.ContarContratos(dni);
         var contratos = await repoContrato.ContratosPaginados(dni, page, pageSize);
 
+        if (totalContratos == 0)
+        {
+            TempData["MensajeError"] = "No se encontraron contratos para el DNI ingresado.";
+            return RedirectToAction("Index");
+        }
+
         ViewBag.TotalPages = (int)Math.Ceiling((double)totalContratos / pageSize);
         ViewBag.CurrentPage = page;
 

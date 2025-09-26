@@ -139,31 +139,14 @@ public class ContratoController : Controller
         return Ok(new { precio = inmueble.Precio });
     }
     [HttpPost]
-    public IActionResult Rescindir(int Id, DateTime FechaRescision)
+    public IActionResult Rescindir(int Id, DateTime FechaRescision, decimal Multa)
     {
         var contrato = repoContrato.ObtenerContratoPorId(Id);
 
 
         if (contrato == null) return NotFound();
 
-        // cálculo de multa
-        DateTime fechaInicio = (DateTime)contrato.Fecha_inicio;
-        DateTime fechaFinalizacionOriginal = (DateTime)contrato.Fecha_fin;
-        var duracionTotal = fechaFinalizacionOriginal - fechaInicio;
-        var diasTotales = duracionTotal.TotalDays / 30; // Aproximación de meses de duración total
-        var mitadDuracion = diasTotales / 2;
-        var diferencia = fechaFinalizacionOriginal - FechaRescision;
-        var mesesRestantes = diferencia.TotalDays / 30; // Aproximación de meses de lo que le falto
-        decimal multa = contrato.Monto_mensual * (decimal)mesesRestantes;
-        if (mesesRestantes < mitadDuracion)
-        {
 
-            contrato.Multa = multa + contrato.Monto_mensual * 2;
-        }
-        else
-        {
-            contrato.Multa = multa + contrato.Monto_mensual;
-        }
 
         var idUsuarioStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(idUsuarioStr, out int idUsuario))
@@ -175,6 +158,7 @@ public class ContratoController : Controller
         // Guardar cambios en BD (Estado, fecha de rescisión, multa, etc.)
         contrato.Estado = "Rescindido";
         contrato.Fecha_terminacion = FechaRescision;
+        contrato.Multa = Multa;
 
         repoPago.Crear(new Pago
         {
@@ -182,7 +166,7 @@ public class ContratoController : Controller
             Numero_pago = 0,
             Fecha_pago = FechaRescision,
             Detalle = "Multa por rescisión anticipada",
-            Importe = (decimal)contrato.Multa,
+            Importe = Multa,
             Estado = "PAGADO",
             Id_usuario_creador = contrato.Id_usuario_finalizador ?? 0,
         });
@@ -191,5 +175,35 @@ public class ContratoController : Controller
 
         return RedirectToAction("Index");
     }
+
+    [HttpPost]
+    public async Task<IActionResult> CalcularMulta(int idContrato, DateTime fechaRescision)
+    {
+        var contrato = repoContrato.ObtenerContratoPorId(idContrato);
+        if (contrato == null) return NotFound();
+
+        DateTime fechaInicio = (DateTime)contrato.Fecha_inicio;
+        DateTime fechaFinalizacionOriginal = (DateTime)contrato.Fecha_fin;
+        var duracionTotal = fechaFinalizacionOriginal - fechaInicio;
+        var mesesTotales = (int)duracionTotal.TotalDays / 30;
+        var mitadDuracion = mesesTotales / 2;
+        var pagosRealizados = await repoPago.ContarPagosPorActivos(idContrato);
+
+
+        var diferencia = fechaRescision - fechaInicio;
+        var mesesTranscurridos = (int)diferencia.TotalDays / 30;
+        var deuda = mesesTranscurridos - pagosRealizados;
+
+        decimal multa = contrato.Monto_mensual * deuda;
+        if (mesesTranscurridos < mitadDuracion)
+            multa += contrato.Monto_mensual * 2;
+        else
+            multa += contrato.Monto_mensual;
+
+        return Json(new { multa });
+    }
+
+
+
 
 }
