@@ -72,7 +72,7 @@ public class ContratoController : Controller
 
         var contrato = new Contrato
         {
-            Id_inmueble = inmueble.Id,      // ✅ Cargar acá
+            Id_inmueble = inmueble.Id,      //  Cargar acá
             Monto_mensual = inmueble.Precio,
             Estado = "Activo"
         };
@@ -302,7 +302,7 @@ public class ContratoController : Controller
         ViewBag.InmuebleNombre = inmueble?.Direccion ?? "Inmueble no disponible";
         ViewBag.InquilinoNombre = inquilino?.Nombre_completo ?? "Inquilino no disponible";
         ViewBag.MontoMensual = contrato.Monto_mensual;
-        
+
 
         return View("Renovar", contrato);
     }
