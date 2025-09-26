@@ -89,7 +89,7 @@ public class UsuarioController : Controller
 
     [Authorize] // Requiere que el usuario esté autenticado para acceder a cualquier acción en este controlador
     [HttpPost]
-    public async Task<IActionResult> CrearUsuario(Usuario usuario, IFormFile Foto)
+    public async Task<IActionResult> CrearUsuario(Usuario usuario, IFormFile? Foto)
     {
         if (ModelState.IsValid)
         {

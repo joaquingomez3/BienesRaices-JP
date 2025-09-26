@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-09-2025 a las 20:24:07
+-- Tiempo de generación: 26-09-2025 a las 22:48:44
 -- Versión del servidor: 10.4.14-MariaDB
 -- Versión de PHP: 7.4.10
 
@@ -46,11 +46,8 @@ CREATE TABLE `contrato` (
 --
 
 INSERT INTO `contrato` (`id`, `id_inquilino`, `id_inmueble`, `fecha_inicio`, `fecha_fin`, `estado`, `fecha_terminacion`, `monto_mensual`, `id_usuario_creador`, `id_usuario_finalizador`, `multa`) VALUES
-(1, 1, 3, '2025-09-01', '2025-10-01', 'Rescindido', '2025-09-20', '1000000.00', 13, 14, '2366667'),
-(2, 2, 1, '2025-09-02', '2025-10-02', 'Rescindido', '2025-09-02', '80000.00', 14, 14, '160000'),
-(3, 7, 20, '2025-09-02', '2025-10-02', 'Rescindido', '2025-09-26', '85000.00', 13, 13, '187000'),
-(5, 8, 19, '2025-01-01', '2025-12-30', 'Rescindido', '2025-09-20', '200000.00', 14, 13, '1073333'),
-(6, 1, 1, '2025-09-23', '2025-10-02', 'Vigente', NULL, '80000.00', 13, NULL, NULL);
+(9, 4, 2, '2025-09-25', '2026-09-25', 'Rescindido', '2025-12-25', '150000.00', 13, 13, '750000'),
+(10, 1, 1, '2025-10-03', '2026-10-03', 'Vigente', NULL, '80000.00', 13, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -95,34 +92,33 @@ CREATE TABLE `inmueble` (
   `precio` decimal(12,2) NOT NULL,
   `estado` enum('DISPONIBLE','SUSPENDIDO','OCUPADO') DEFAULT 'DISPONIBLE',
   `id_propietario` int(11) NOT NULL,
-  `id_tipo` int(11) NOT NULL,
-  `descripcion` varchar(1000) NOT NULL
+  `id_tipo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `inmueble`
 --
 
-INSERT INTO `inmueble` (`id`, `direccion`, `uso`, `ambientes`, `coordenadas`, `precio`, `estado`, `id_propietario`, `id_tipo`, `descripcion`) VALUES
-(1, 'Mitre 456', 'RESIDENCIAL', 5, '-34.6037,-58.3816', '80000.00', 'DISPONIBLE', 1, 1, ''),
-(2, 'San Martín 1200', 'COMERCIAL', 1, '-34.6158,-58.4333', '150000.00', 'DISPONIBLE', 2, 3, ''),
-(3, 'calle falsa 778', 'RESIDENCIAL', 3, '222 ,222', '1000000.00', 'DISPONIBLE', 1, 1, ''),
-(4, 'calle falsa 777', 'COMERCIAL', 2, '-34.6037,-58.3816', '10000.00', 'DISPONIBLE', 1, 3, ''),
-(15, 'Av. Libertador 1500', 'RESIDENCIAL', 4, '-34.5901,-58.4070', '95000.00', 'DISPONIBLE', 2, 1, ''),
-(16, 'Calle Córdoba 1234', 'COMERCIAL', 2, '-34.6037,-58.3816', '120000.00', 'DISPONIBLE', 1, 3, ''),
-(17, 'Av. Santa Fe 2100', 'RESIDENCIAL', 3, '-34.5842,-58.4191', '110000.00', 'OCUPADO', 1, 1, 'Departamento luminoso'),
-(18, 'Calle Corrientes 350', 'COMERCIAL', 1, '-34.6083,-58.3705', '90000.00', 'SUSPENDIDO', 2, 3, 'Oficina pequeña'),
-(19, 'Calle Mendoza 789', 'RESIDENCIAL', 5, '-34.6175,-58.4331', '200000.00', 'DISPONIBLE', 5, 1, 'Casa amplia con patio'),
-(20, 'Av. Callao 150', 'RESIDENCIAL', 2, '-34.5995,-58.4108', '85000.00', 'DISPONIBLE', 1, 1, 'Departamento céntrico'),
-(21, 'Calle San Juan 555', 'COMERCIAL', 3, '-34.6151,-58.3802', '175000.00', 'SUSPENDIDO', 2, 3, 'Local con depósito'),
-(22, 'Av. Belgrano 222', 'RESIDENCIAL', 4, '-34.6123,-58.3765', '130000.00', 'DISPONIBLE', 5, 1, 'Departamento moderno'),
-(23, 'Calle Lima 1010', 'COMERCIAL', 2, '-34.6012,-58.3874', '95000.00', 'DISPONIBLE', 1, 3, 'Oficina pequeña céntrica'),
-(24, 'Calle Rivadavia 333', 'RESIDENCIAL', 3, '-34.6039,-58.3811', '100000.00', 'DISPONIBLE', 2, 1, 'Departamento clásico con balcón'),
-(25, 'lic21', 'COMERCIAL', 2, '-34.6037,-58.3816', '1000000.00', 'DISPONIBLE', 5, 1, ''),
-(26, 'Calle Prueba', 'COMERCIAL', 2, '-34.6037,-58.3816', '100000.00', 'DISPONIBLE', 6, 1, ''),
-(27, 'calle falsa 777', 'COMERCIAL', 2, '-34.6037,-58.3816', '478956.00', '', 1, 1, ''),
-(29, 'lic21', 'COMERCIAL', 1, '-34.6037,-58.3816', '74152585.00', 'DISPONIBLE', 11, 3, ''),
-(30, 'calle lapunta', 'RESIDENCIAL', 3, '-34.6037,-58.3816', '12000.00', 'DISPONIBLE', 8, 4, '');
+INSERT INTO `inmueble` (`id`, `direccion`, `uso`, `ambientes`, `coordenadas`, `precio`, `estado`, `id_propietario`, `id_tipo`) VALUES
+(1, 'Mitre 456', 'RESIDENCIAL', 5, '-34.6037,-58.3816', '80000.00', 'DISPONIBLE', 1, 1),
+(2, 'San Martín 1200', 'COMERCIAL', 1, '-34.6158,-58.4333', '150000.00', 'DISPONIBLE', 2, 3),
+(3, 'calle falsa 778', 'RESIDENCIAL', 3, '222 ,222', '1000000.00', 'DISPONIBLE', 1, 1),
+(4, 'calle falsa 777', 'COMERCIAL', 2, '-34.6037,-58.3816', '10000.00', 'DISPONIBLE', 1, 3),
+(15, 'Av. Libertador 1500', 'RESIDENCIAL', 4, '-34.5901,-58.4070', '95000.00', 'DISPONIBLE', 2, 1),
+(16, 'Calle Córdoba 1234', 'COMERCIAL', 2, '-34.6037,-58.3816', '120000.00', 'DISPONIBLE', 1, 3),
+(17, 'Av. Santa Fe 2100', 'RESIDENCIAL', 3, '-34.5842,-58.4191', '110000.00', 'OCUPADO', 1, 1),
+(18, 'Calle Corrientes 350', 'COMERCIAL', 1, '-34.6083,-58.3705', '90000.00', 'SUSPENDIDO', 2, 3),
+(19, 'Calle Mendoza 789', 'RESIDENCIAL', 5, '-34.6175,-58.4331', '200000.00', 'DISPONIBLE', 5, 1),
+(20, 'Av. Callao 150', 'RESIDENCIAL', 2, '-34.5995,-58.4108', '85000.00', 'DISPONIBLE', 1, 1),
+(21, 'Calle San Juan 555', 'COMERCIAL', 3, '-34.6151,-58.3802', '175000.00', 'SUSPENDIDO', 2, 3),
+(22, 'Av. Belgrano 222', 'RESIDENCIAL', 4, '-34.6123,-58.3765', '130000.00', 'DISPONIBLE', 5, 1),
+(23, 'Calle Lima 1010', 'COMERCIAL', 2, '-34.6012,-58.3874', '95000.00', 'DISPONIBLE', 1, 3),
+(24, 'Calle Rivadavia 333', 'RESIDENCIAL', 3, '-34.6039,-58.3811', '100000.00', 'DISPONIBLE', 2, 1),
+(25, 'lic21', 'COMERCIAL', 2, '-34.6037,-58.3816', '1000000.00', 'DISPONIBLE', 5, 1),
+(26, 'Calle Prueba', 'COMERCIAL', 2, '-34.6037,-58.3816', '100000.00', 'DISPONIBLE', 6, 1),
+(27, 'calle falsa 777', 'COMERCIAL', 2, '-34.6037,-58.3816', '478956.00', '', 1, 1),
+(29, 'lic21', 'COMERCIAL', 1, '-34.6037,-58.3816', '74152585.00', '', 11, 3),
+(30, 'calle lapunta', 'RESIDENCIAL', 3, '-34.6037,-58.3816', '120000.00', 'DISPONIBLE', 2, 4);
 
 -- --------------------------------------------------------
 
@@ -151,8 +147,8 @@ INSERT INTO `inquilino` (`id`, `dni`, `nombre_completo`, `telefono`, `email`, `d
 (5, '12345678', 'Juan Pérez', '1123456789', 'juan.perez@email.com', 'Calle Falsa 123', 1),
 (6, '87654321', 'María Gómez', '1198765432', 'maria.gomez@email.com', 'Av. Siempre Viva 456', 1),
 (7, '23456789', 'Carlos Rodríguez', '1134567890', 'carlos.rodriguez@email.com', 'Calle Luna 789', 1),
-(8, '34567890', 'Lucía Fernández', '1145678901', 'lucia.fernandez@email.com', 'Av. Sol 321', 1),
-(9, '45678901', 'Martín López', '1156789012', 'martin.lopez@email.com', 'Calle Estrella 654', 1);
+(8, '34567890', 'Lucía Fernández', '1145678901', 'lucia.fernandez@email.com', 'Av. Sol 321', 0),
+(9, '45678901', 'Martín López', '1156789012', 'martin.lopez@email.com', 'Calle mentira 654', 1);
 
 -- --------------------------------------------------------
 
@@ -178,12 +174,7 @@ CREATE TABLE `pago` (
 --
 
 INSERT INTO `pago` (`id`, `id_contrato`, `numero_pago`, `fecha_pago`, `detalle`, `importe`, `Anulado`, `estado`, `id_usuario_creador`, `id_usuario_anulador`) VALUES
-(9, 1, 1, '2025-09-18', 'SEPTIEMBRE', '1000000.00', 0, 'PAGADO', 13, 13),
-(10, 1, 2, '2025-09-18', 'AGOSTO', '1000000.00', 0, 'PAGADO', 13, NULL),
-(12, 1, 3, '2025-09-18', 'JULIO', '1000000.00', 0, 'PAGADO', 13, NULL),
-(13, 5, 1, '2025-09-20', 'Multa por rescisión anticipada', '1073333.33', 0, 'PAGADO', 13, NULL),
-(16, 2, 1, '2025-09-20', 'Multa por rescisión anticipada', '192000.00', 0, 'PAGADO', 14, NULL),
-(18, 3, 1, '2025-09-26', 'Multa por rescisión anticipada', '187000.00', 0, 'PAGADO', 13, NULL);
+(20, 9, 1, '2025-12-25', 'Multa por rescisión anticipada', '750000.00', 0, 'PAGADO', 13, NULL);
 
 -- --------------------------------------------------------
 
@@ -211,11 +202,12 @@ INSERT INTO `propietario` (`id`, `dni`, `apellido`, `nombre`, `telefono`, `email
 (2, '30111222', 'González', 'María', '1198765432', 'maria.gonzalez@mail.com', 'Av. Siempre Viva 742', 1),
 (5, '43423665', 'Gomez', 'Joaquin', '2664894029', 'joaquin@mail.com', 'calle falsa 333', 1),
 (6, '41321577', 'Gomez', 'Priscila', '2664039877', 'priscila@mail.com', 'lic21', 1),
-(7, '11111111', 'González', 'Joaquín', '1112345678', 'joaquin.gonzalez@email.com', 'Calle Verde 12', 1),
-(8, '22222222', 'Ramírez', 'Ana', '1123456789', 'ana.ramirez@email.com', 'Av. Azul 34', 1),
+(7, '11111111', 'González', 'Joaquín', '1112345678', 'joaquin.gonzalez@mail.com', 'Calle Verde 12', 1),
+(8, '22222222', 'Ramírez', 'Ana', '1123456789', 'ana.ramirez@email.com', 'Av. Azul 34', 0),
 (9, '33333333', 'Martínez', 'Diego', '1134567890', 'diego.martinez@email.com', 'Calle Roja 56', 0),
 (10, '44444444', 'López', 'Sofía', '1145678901', 'sofia.lopez@email.com', 'Av. Amarilla 78', 1),
-(11, '55555555', 'Fernández', 'Lucas', '1156789012', 'lucas.fernandez@email.com', 'Calle Blanca 90', 1);
+(11, '55555555', 'Fernández', 'Lucas', '1156789012', 'lucas.fernandez@email.com', 'Calle Blanca 90', 1),
+(12, '77852963', 'Perez', 'Raul', '2664514879', 'raul@mail.com', 'callePreuba', 1);
 
 -- --------------------------------------------------------
 
@@ -280,8 +272,8 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`id`, `nombre_usuario`, `apellido_usuario`, `email`, `password`, `id_tipo_usuario`, `activo`, `foto`) VALUES
 (13, 'Juan', 'Pérez', 'admin@inmobiliaria.com', 'AQAAAAIAAYagAAAAEFRubINOArw1fGK4H5Hc5+IYmDfJxArvBez3j7mNIdtof3dpbkVEa4fkKIRTt5GUNw==', 1, 1, '/uploads/d11c4d9f-680a-4e81-8e2a-ba052c074cb7.png'),
-(14, 'Joaquin', 'Gomez', 'joaquin3@mail.com', 'AQAAAAIAAYagAAAAEG46jl/cFu1Nqdjr60Zs8i+UMhFReoI8KHdW9yWSTzPImwdNv6/FSujsxbvWm8I0Cw==', 2, 1, NULL),
-(16, 'Pablo', 'Alcaraz', 'pablo@mail.com', 'AQAAAAIAAYagAAAAELVsDhfN4VMTiWLcEhpPl8mXFbFcfFfvxGYmA7m89CRikQr82PihyJ37AXa2lArIqA==', 2, 1, NULL);
+(14, 'Joaquin', 'Gomez', 'joaquin3@mail.com', 'AQAAAAIAAYagAAAAEG46jl/cFu1Nqdjr60Zs8i+UMhFReoI8KHdW9yWSTzPImwdNv6/FSujsxbvWm8I0Cw==', 2, 1, '/uploads/db64806d-f132-4578-8899-70c597eedbc4.png'),
+(17, 'Pablo', 'Alcaraz', 'pablo@mail.com', 'AQAAAAIAAYagAAAAEP7mUEx8tmxLy8D6sXz4stWBG9cc9Vc3/+zDQliyF2YBPcGuZ5yC130LM9mkrzgBHA==', 2, 1, '/uploads/4beda74c-1a7a-49df-8b47-ceb7dc42899b.png');
 
 --
 -- Índices para tablas volcadas
@@ -364,7 +356,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `contrato`
 --
 ALTER TABLE `contrato`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `foto_inmueble`
@@ -388,13 +380,13 @@ ALTER TABLE `inquilino`
 -- AUTO_INCREMENT de la tabla `pago`
 --
 ALTER TABLE `pago`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `propietario`
 --
 ALTER TABLE `propietario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `tipo_inmueble`
@@ -412,7 +404,7 @@ ALTER TABLE `tipo_usuario`
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- Restricciones para tablas volcadas

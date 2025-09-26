@@ -42,7 +42,7 @@ public class RepositorioInmueble : RepositorioBase
         using (var connection = new MySqlConnection(connectionString))
         {
             var sql = @"SELECT i.id, i.direccion, i.uso, i.ambientes, i.coordenadas, 
-                           i.precio, i.estado, i.id_propietario, i.id_tipo, i.descripcion,
+                           i.precio, i.estado, i.id_propietario, i.id_tipo, 
                            p.dni, p.apellido, p.nombre,
                            t.nombre AS tipo_inmueble
                     FROM inmueble i
@@ -67,7 +67,7 @@ public class RepositorioInmueble : RepositorioBase
                         Estado = reader.GetString("estado"),
                         Id_Propietario = reader.GetInt32("id_propietario"),
                         Id_Tipo = reader.GetInt32("id_tipo"),
-                        Descripcion = reader.IsDBNull(reader.GetOrdinal("descripcion")) ? null : reader.GetString("descripcion"),
+
                         PropietarioNombre = reader.GetString("dni") + " - " + reader.GetString("apellido") + " " + reader.GetString("nombre"),
                         TipoInmuebleNombre = reader.GetString("tipo_inmueble")
                     };
@@ -87,7 +87,7 @@ public class RepositorioInmueble : RepositorioBase
             var sql = @"UPDATE inmueble 
                             SET direccion=@direccion, uso=@uso, ambientes=@ambientes,
                                 coordenadas=@coordenadas, precio=@precio, estado=@estado,
-                                id_propietario=@id_propietario, id_tipo=@id_tipo, descripcion=@descripcion
+                                id_propietario=@id_propietario, id_tipo=@id_tipo
                             WHERE id=@id";
             using (var command = new MySqlCommand(sql, connection))
             {
@@ -100,7 +100,7 @@ public class RepositorioInmueble : RepositorioBase
                 command.Parameters.AddWithValue("@id_propietario", inmueble.Id_Propietario);
                 command.Parameters.AddWithValue("@id_tipo", inmueble.Id_Tipo);
                 command.Parameters.AddWithValue("@id", inmueble.Id);
-                command.Parameters.AddWithValue("@descripcion", inmueble.Descripcion);
+
 
                 connection.Open();
                 res = command.ExecuteNonQuery();
@@ -255,7 +255,7 @@ public class RepositorioInmueble : RepositorioBase
                 i.coordenadas,
                 i.precio,
                 i.estado,
-                i.descripcion,
+                
                 CONCAT(p.apellido, ' ', p.nombre) AS propietario,
                 t.nombre AS tipo_inmueble
             FROM inmueble i
