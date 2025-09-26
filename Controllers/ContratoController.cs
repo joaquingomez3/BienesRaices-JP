@@ -173,7 +173,7 @@ public class ContratoController : Controller
         repoContrato.ActualizarContrato(contrato);
         TempData["MensajeExito"] = "Se Rescindio Contrato correctamente";
 
-        return RedirectToAction("Index");
+        return RedirectToAction("RegistroPagos", "Pago", new { contratoId = contrato.Id });
     }
 
     [HttpPost]
