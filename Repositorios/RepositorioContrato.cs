@@ -220,6 +220,8 @@ public class RepositorioContrato : RepositorioBase
             VALUES 
             (@id_inquilino,@id_inmueble,@fecha_inicio,@fecha_fin,@estado,@fecha_terminacion,@monto_mensual,@id_usuario_creador,@id_usuario_finalizador,@multa)";
 
+
+
             using (MySqlCommand command = new MySqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@id_inquilino", contrato.Id_inquilino);
@@ -237,7 +239,8 @@ public class RepositorioContrato : RepositorioBase
                 try
                 {
                     connection.Open();
-                    command.ExecuteNonQuery();
+                    int filas=command.ExecuteNonQuery();
+                    Console.WriteLine("Filas insertadas: " + filas);
                 }
                 catch (Exception ex)
                 {
@@ -277,6 +280,62 @@ public class RepositorioContrato : RepositorioBase
         }
     }
 
+    public void RenovarContrato(int idContrato, int meses)
+    {
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            var contratoViejo = ObtenerContratoPorId(idContrato);
+            if (contratoViejo == null)
+                throw new Exception("Contrato no encontrado");
+
+            // nuevo rango de fechas
+            DateTime nuevaFechaInicio = contratoViejo.Fecha_fin;
+            DateTime nuevaFechaFin = nuevaFechaInicio.AddMonths(meses);
+
+            var query = @"INSERT INTO contrato 
+            (id_inquilino,id_inmueble,fecha_inicio,fecha_fin,estado,fecha_terminacion,monto_mensual,id_usuario_creador,id_usuario_finalizador,multa) 
+            VALUES 
+            (@id_inquilino,@id_inmueble,@fecha_inicio,@fecha_fin,@estado,@fecha_terminacion,@monto_mensual,@id_usuario_creador,@id_usuario_finalizador,@multa)";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id_inquilino", contratoViejo.Id_inquilino);
+                command.Parameters.AddWithValue("@id_inmueble", contratoViejo.Id_inmueble);
+                command.Parameters.AddWithValue("@fecha_inicio", nuevaFechaInicio);
+                command.Parameters.AddWithValue("@fecha_fin", nuevaFechaFin);
+                command.Parameters.AddWithValue("@estado", "Vigente");
+                command.Parameters.AddWithValue("@fecha_terminacion", DBNull.Value);
+                command.Parameters.AddWithValue("@monto_mensual", contratoViejo.Monto_mensual);
+                command.Parameters.AddWithValue("@id_usuario_creador", contratoViejo.Id_usuario_creador);
+                command.Parameters.AddWithValue("@id_usuario_finalizador", DBNull.Value);
+                command.Parameters.AddWithValue("@multa", DBNull.Value);
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error al renovar contrato: " + ex.Message, ex);
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+    }
+    public async Task ActualizarEstadoAsync(int idContrato, string nuevoEstado)
+    {
+        using var connection = new MySqlConnection(connectionString);
+        var query = "UPDATE contrato SET estado = @estado WHERE id = @id";
+        using var command = new MySqlCommand(query, connection);
+        command.Parameters.AddWithValue("@estado", nuevoEstado);
+        command.Parameters.AddWithValue("@id", idContrato);
+        await connection.OpenAsync();
+        await command.ExecuteNonQueryAsync();
+    }
 
 
 }

@@ -54,5 +54,8 @@ namespace bienesraices.Models
         public string? InmuebleUso { get; set; }
         public string? Creador { get; set; }
         public string? Finalizador { get; set; }
+
+      
     }
+    
 }

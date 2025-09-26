@@ -74,6 +74,15 @@
 
                             </ul>
                         </div>
+                        @if (contrato.Estado == "Finalizado")
+                        {
+                            <a class="dropdown-item text-success" asp-controller="Contrato" asp-action="CrearDesdeContrato"
+                                asp-route-id="@contrato.Id">
+                                <i class="fa fa-sync-alt me-2"></i> Renovar
+                            </a>
+                        }
+
+
                     </td>
 
                 </tr>
@@ -161,10 +170,10 @@
                         title: '¡Éxito!',
                         text: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"])),
                         confirmButtonColor: '#bb4900'
-                                                                                                                                            });
+                                                                                                                                                                    });
                     </text>
             }
-                                                                    });
+                                                                                });
     </script>
     <script>
 

@@ -1,0 +1,86 @@
+@model bienesraices.Models.Contrato
+
+@{
+    ViewData["Title"] = "Renovar contrato";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">🔁 Renovar Contrato</h2>
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="RenovarConfirmado" method="post" class="shadow-lg p-4 rounded bg-light">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <input type="hidden" name="OriginalContratoId" value="@Model.Id" />
+
+
+        <div class="row g-3">
+
+            <!-- Inquilino (solo lectura) -->
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Inquilino</label>
+                <input type="text" class="form-control" value="@ViewBag.InquilinoNombre" readonly />
+                <input asp-for="Id_inquilino" type="hidden" />
+            </div>
+
+            <!-- Inmueble (solo lectura) -->
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Inmueble</label>
+                <input type="text" class="form-control" value="@ViewBag.InmuebleNombre" readonly />
+                <input asp-for="Id_inmueble" type="hidden" />
+            </div>
+
+            <!-- Fecha de Inicio -->
+            <div class="col-md-6">
+                <label asp-for="Fecha_inicio" class="form-label fw-bold"></label>
+                <input asp-for="Fecha_inicio" type="date" class="form-control"
+                    value="@(Model.Fecha_inicio == DateTime.MinValue ? "" : Model.Fecha_inicio.ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="Fecha_inicio" class="text-danger"></span>
+            </div>
+
+            <!-- Fecha de Fin -->
+            <div class="col-md-6">
+                <label asp-for="Fecha_fin" class="form-label fw-bold"></label>
+                <input asp-for="Fecha_fin" type="date" class="form-control"
+                    value="@(Model.Fecha_fin == DateTime.MinValue ? "" : Model.Fecha_fin.ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="Fecha_fin" class="text-danger"></span>
+            </div>
+
+            <!-- Monto Mensual (solo lectura) -->
+            <div class="col-md-6">
+                <label asp-for="Monto_mensual" class="form-label fw-bold"></label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="text" class="form-control" value="@ViewBag.MontoMensual" readonly />
+                </div>
+                <input asp-for="Monto_mensual" type="hidden" value="@ViewBag.MontoMensual" />
+            </div>
+
+            <!-- Estado -->
+            <input asp-for="Estado" type="hidden" value="Vigente" />
+
+            <!-- Botones -->
+            <div class="mt-4 d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+                
+                <button type="submit" class="btn btn-primary"
+                    style="background-color:#bb4900; border:none;">
+                    <i class="fa fa-sync-alt me-2"></i> Confirmar Renovación
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
